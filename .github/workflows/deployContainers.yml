@@ -1,0 +1,85 @@
+on:
+  workflow_call:
+    secrets:
+      VPN_CONFIG:
+        required: true
+        description: "VPN configuration file text"
+      KUBE_CONFIG:
+        required: true
+        description: "Kubernetes configuration file text"
+
+    inputs:
+      check_ip:
+        required: true
+        type: string
+        description: "the IP pinged to check for a proper VPN connection."
+      services:
+        required: true
+        type: string
+        description: "a json array of service strings to call this workflow against."
+      docker_registry_repo:
+        required: true
+        type: string
+        description: "the repository of the registry to send the containers to"
+      docker_registry:
+        required: true
+        type: string
+        description: "destination docker registry"
+      kube_version:
+        required: true
+        type: string
+        description: "the kubernetes version used in azure."
+      kube_namespace:
+        required: true
+        type: string
+        description: "one of qa-test, qa-prod, test, prod. Determines the tags used in the docker containers."
+      tag: 
+        description: "the tag used for the deployment container"
+        required: true
+        type: string
+#Reusable Workflow. Not a composite action unf.
+
+
+jobs:
+  deployContainers:
+    strategy:
+      matrix:
+        service: ${{fromJson(inputs.services)}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: azure/setup-kubectl@v1
+        with:
+          version: ${{inputs.kube_version}}
+
+      - name: Install Open VPN
+        run: |
+          sudo apt install apt-transport-https
+          sudo wget https://swupdate.openvpn.net/repos/openvpn-repo-pkg-key.pub
+          sudo apt-key add openvpn-repo-pkg-key.pub
+          sudo wget -O /etc/apt/sources.list.d/openvpn3.list https://swupdate.openvpn.net/community/openvpn3/repos/openvpn3-bionic.list
+          sudo apt update
+          sudo apt install openvpn3
+
+      - run: 'echo "$VPN_CONFIG" > ./config.ovpn'
+        name: create ovpn file
+        shell: bash
+        env:
+          VPN_CONFIG: ${{secrets.VPN_CONFIG}}
+      - run: 'echo "$KUBE_CONFIG" > ./kube.config'
+        name: create kube config file
+        shell: bash
+        env:
+          KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
+
+      - name: Start Open VPN 3
+        run: openvpn3 session-start --config ./config.ovpn
+
+      - name: Check Connect VPN
+        run: ping ${{inputs.check_ip}} -c 1
+
+      - name: deploy
+        run: |
+          kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ./kube.config \
+          set image deployment/${{ matrix.service }}-deployment \
+          ${{ matrix.service }}=${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ inputs.tag }}

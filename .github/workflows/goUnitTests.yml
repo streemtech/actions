@@ -1,0 +1,104 @@
+on:
+  workflow_call:
+    secrets:
+      # GO_MODULES_TOKEN:
+      #   required: true
+      #   description: "the token used to pull data from github, and checkout as needed."
+      GITHUB_TOKEN:
+        required: true
+        description: "the token used to pull data from github, and checkout as needed."
+
+    inputs:
+      services:
+        required: true
+        type: string
+        description: "a set of services to call this workflow against."
+      version:
+        required: true
+        type: boolean
+        description: if the version should be incremented or not.
+
+    outputs:
+      newTag:   
+        description: "The full new tag cretaed"
+        value: ${{ jobs.unitTests.outputs.newTag }}
+      tagMajor: 
+        description: "the major version of the tag"
+        value: ${{ jobs.unitTests.outputs.tagMajor }}
+      tagMinor: 
+        description: "the minor version of the tag."
+        value: ${{ jobs.unitTests.outputs.tagMinor }}
+      tagPatch: 
+        description: "the patch version of the tag."
+        value: ${{ jobs.unitTests.outputs.tagPatch }}
+
+#Reusable Workflow. Not a composite action unf.
+jobs:
+  unitTests:
+    # strategy:
+    #   matrix: 
+    #     name: ${{fromJson(inputs.names)}}
+    runs-on: ubuntu-latest
+    outputs:
+      newTag: ${{ steps.bump_tag.outputs.new_tag }}
+      tagMajor: ${{ steps.semver_parser.outputs.major }}
+      tagMinor: ${{ steps.semver_parser.outputs.minor }}
+      tagPatch: ${{ steps.semver_parser.outputs.patch }}
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup git config
+        run: git config --global url."https://x-oauth-basic:${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
+
+      - name: Setup Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: restore go cache
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-goTests-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-goTests-
+
+      - name: Shadow Test
+        run: | 
+          go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
+          shadow -strict ./...
+
+      # TODO2 run static-check
+
+      - name: Test
+        run: go test -v -coverprofile=c.out ./...
+
+      - name: Generate Coverage Report
+        run: go tool cover -html=c.out -o coverage.html
+
+      - name: Archive Test Coverage
+        uses: actions/upload-artifact@v2
+        with:
+          path: coverage.html
+          name: coverage.html
+          retention-days: 7
+
+      - name: calculate test version number.
+        id: bump_tag
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DEFAULT_BUMP: patch
+          DRY_RUN: true
+      - name: Parse semver string
+        id: semver_parser
+        uses: booxmedialtd/ws-action-parse-semver@v1
+        with:
+          input_string: "${{ steps.bump_tag.outputs.new_tag }}"
