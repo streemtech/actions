@@ -10,4 +10,4 @@ jobs:
   ci:
     uses: streemtech/actions/.github/workflows/testaction.yml@main
     with: 
-      versions: '["daryl","jeffrey"]'
+      names: '["daryl","jeffrey"]'
