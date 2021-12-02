@@ -9,10 +9,6 @@ on:
         description: "the token used to pull data from github, and checkout as needed."
 
     inputs:
-      services:
-        required: true
-        type: string
-        description: "a set of services to call this workflow against."
       version:
         required: true
         type: boolean
