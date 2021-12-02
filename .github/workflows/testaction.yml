@@ -1,0 +1,20 @@
+on:
+  workflow_call:
+    inputs:
+      names:
+        required: true
+        type: string
+        description: "a set of test names to test with"
+
+jobs:
+  echo_name:
+    strategy:
+      matrix: 
+        name: ${{fromJson(inputs.names)}}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - run: echo hello ${{ matrix.name }}
+      
+      - run: echo welcome
+      - run: echo welcome ${{ matrix.name }}

@@ -1,0 +1,13 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ci:
+    uses: streemtech/actions/.github/workflows/testaction.yml@main
+    with: 
+      versions: '["daryl","jeffrey"]'
