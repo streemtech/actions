@@ -110,7 +110,7 @@ jobs:
 
       - name: Build and push testing containers
         uses: docker/build-push-action@v2
-        if: ${{inputs.push_state == "test"}}
+        if: ${{inputs.push_state == 'test'}}
         with:
           push: true
           tags: |
@@ -121,7 +121,7 @@ jobs:
 
       - name: Build and push production containers
         uses: docker/build-push-action@v2
-        if: $${{inputs.push_state == "prod"}}
+        if: $${{inputs.push_state == 'prod'}}
         with:
           push: true
           tags: |
@@ -134,7 +134,7 @@ jobs:
 
       - name: Build and push qa testing containers
         uses: docker/build-push-action@v2
-        if: $${{inputs.push_state == "qa-test"}}
+        if: $${{inputs.push_state == 'qa-test'}}
         with:
           push: true
           tags: |
@@ -144,8 +144,9 @@ jobs:
           file: ./cmd/${{ matrix.service }}/dockerfile
 
       - name: Build and push qa deployment containers
+        # not likely to ever get used, but here anyway.
         uses: docker/build-push-action@v2
-        if: $${{inputs.push_state == "qa-prod"}}
+        if: $${{inputs.push_state == 'qa-prod'}}
         with:
           push: true
           tags: |
