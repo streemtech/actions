@@ -17,6 +17,10 @@ on:
         required: true
         type: boolean
         description: if the version should be incremented or not.
+      go_private: 
+        description: "the string sent to GOPRIVATE env var"
+        type: string
+        required: true
 
     outputs:
       newTag:   
@@ -44,6 +48,8 @@ jobs:
       tagMajor: ${{ steps.semver_parser.outputs.major }}
       tagMinor: ${{ steps.semver_parser.outputs.minor }}
       tagPatch: ${{ steps.semver_parser.outputs.patch }}
+    env:
+      GOPRIVATE: ${{inputs.go_private}}
 
     steps:
       - name: checkout
