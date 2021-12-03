@@ -1,0 +1,85 @@
+on:
+  workflow_call:
+    secrets:
+      REGISTRY_USERNAME:
+        required: true
+        description: the username for the registry
+      REGISTRY_PASSWORD:
+        required: true
+        description: the password for the registry
+      GITHUB_TOKEN:
+        required: true
+        description: "the token used to pull data from github, and checkout as needed."
+
+    inputs:
+      e2eFolders:
+        required: true
+        type: string
+        description: "a json array of the folders to cd into to run end to end tests against. Each folder must have a makefile with 'logs', 'wait', and 'test', along with a override.yml dockerfile."
+      go_private: 
+        description: "the string sent to GOPRIVATE env var"
+        type: string
+        required: true
+
+jobs:
+
+  #************* END TO END TESTS ***************
+  endToEndTests:
+    strategy:
+      matrix:
+        folder: ${{fromJson(inputs.e2eFolders)}}
+    env:
+      GOPRIVATE: ${{inputs.go_private}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Setup git config
+        run: git config --global url."https://x-oauth-basic:${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
+
+      - name: Login to Harbor
+        uses: docker/login-action@v1
+        with:
+          registry: harbor.streem.tech
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: docker up
+        run: docker-compose -f ./end-to-end/docker.yml -f ./end-to-end/${{matrix.folders}}/override.yml up -d
+
+      - name: list all containers
+        run: docker ps -a
+
+      - name: Wait for results to be up
+        run: make wait
+        working-directory: ./end-to-end/${{matrix.folders}}
+
+      - name: run tests
+        run: make test
+        working-directory: ./end-to-end/${{matrix.folders}}
+
+      - name: Check newman existence
+        id: check_newman_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "./end-to-end/${{matrix.folders}}/e2e.postman_environment.json, ./end-to-end/${{matrix.folders}}/e2e.postman_collection.json"
+
+      - name: Run newman tests
+        uses: matt-ball/newman-action@master
+        if: steps.check_newman_files.outputs.files_exists == 'true'
+        with:
+          collection: ./end-to-end/${{matrix.folders}}/e2e.postman_collection.json
+          environment: ./end-to-end/${{matrix.folders}}/e2e.postman_environment.json
+          insecure: true
+
+      - name: output logs
+        if: ${{ failure() }}
+        working-directory: ./end-to-end/${{matrix.folders}}
+        run: |
+          docker ps
+          echo "******************************************"
+          make logs
