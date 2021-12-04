@@ -4,12 +4,11 @@ on:
       # GO_MODULES_TOKEN:
       #   required: true
       #   description: "the token used to pull data from github, and checkout as needed."
-
-    inputs:
-      GITHUB_TOKEN:
-        type: string
+      GITHUB_AUTH_TOKEN:
         required: true
         description: "the token used to pull data from github, and checkout as needed."
+
+    inputs:
       version:
         required: true
         type: boolean
@@ -54,10 +53,10 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_AUTH_TOKEN }}
 
       - name: Setup git config
-        run:  git config --global url.https://${{ inputs.GITHUB_TOKEN }}@github.com/.insteadOf https://github.com/
+        run:  git config --global url.https://${{ inputs.GITHUB_AUTH_TOKEN }}@github.com/.insteadOf https://github.com/
 
       - name: Setup Golang
         uses: actions/setup-go@v2
@@ -100,7 +99,7 @@ jobs:
         id: bump_tag
         uses: anothrNick/github-tag-action@1.36.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_AUTH_TOKEN }}
           WITH_V: true
           DEFAULT_BUMP: patch
           DRY_RUN: true
