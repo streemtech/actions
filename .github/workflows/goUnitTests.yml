@@ -71,18 +71,31 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-goTests-
 
-      # TODO2 run static-check
-
       - name: Test
         run: go test -v -coverprofile=c.out ./...
+
+      - name: Generate Coverage Report
+        run: go tool cover -html=c.out -o coverage.html
 
       - name: Shadow Test
         run: | 
           go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
           shadow -strict ./...
 
-      - name: Generate Coverage Report
-        run: go tool cover -html=c.out -o coverage.html
+      # - name: Static Check
+      #   run: | 
+      #     go install honnef.co/go/tools/cmd/staticcheck@2021.1.2
+      #     staticcheck ./...
+
+      # - name: golangci-lint
+      #   uses: golangci/golangci-lint-action@v2
+      #   with:
+      #     # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+      #     version: v1.43
+      #     skip-pkg-cache: true
+      #     skip-go-installation: true
+      #     skip-build-cache: true
+
 
       - name: Archive Test Coverage
         uses: actions/upload-artifact@v2
