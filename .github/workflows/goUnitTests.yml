@@ -73,6 +73,10 @@ jobs:
 
       # TODO2 run static-check
 
+      - name: Test clone
+        run: git clone https://github.com/streemtech/libraries/
+
+
       - name: Test
         run: go test -v -coverprofile=c.out ./...
 
