@@ -4,11 +4,12 @@ on:
       # GO_MODULES_TOKEN:
       #   required: true
       #   description: "the token used to pull data from github, and checkout as needed."
-      GITHUB_TOKEN:
-        required: true
-        description: "the token used to pull data from github, and checkout as needed."
 
     inputs:
+      GITHUB_TOKEN:
+        type: string
+        required: true
+        description: "the token used to pull data from github, and checkout as needed."
       version:
         required: true
         type: boolean
@@ -56,7 +57,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup git config
-        run:  git config --global url.https://${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf https://github.com/
+        run:  git config --global url.https://${{ inputs.GITHUB_TOKEN }}@github.com/.insteadOf https://github.com/
 
       - name: Setup Golang
         uses: actions/setup-go@v2
