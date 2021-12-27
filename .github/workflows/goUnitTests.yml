@@ -81,10 +81,10 @@ jobs:
       - name: Generate Coverage Report
         run: go tool cover -html=c.out -o coverage.html
 
-      - name: Shadow Test
-        run: | 
-          go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
-          shadow -strict ./...
+      # - name: Shadow Test
+      #   run: | 
+      #     go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
+      #     shadow -strict ./...
 
       # - name: Static Check
       #   run: | 
