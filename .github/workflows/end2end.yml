@@ -48,17 +48,17 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Check newman existence
+      - name: Check dockerfile
         id: check_docker_files
         uses: andstor/file-existence-action@v1
         with:
           files: "./end-to-end/${{matrix.folder}}/docker.yml"
 
-      - name: docker up
+      - name: docker up (use base)
         run: docker-compose -f ./end-to-end/docker.yml -f ./end-to-end/${{matrix.folder}}/override.yml up -d
         if: steps.check_docker_files.outputs.files_exists == 'false'
 
-      - name: docker up
+      - name: docker up (all in test)
         run: docker-compose -f ./end-to-end/${{matrix.folder}}/docker.yml up -d
         if: steps.check_docker_files.outputs.files_exists == 'true'
 
