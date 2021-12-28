@@ -52,14 +52,14 @@ jobs:
         id: check_docker_files
         uses: andstor/file-existence-action@v1
         with:
-          files: "./end-to-end/${{matrix.folders}}/docker.yml"
+          files: "./end-to-end/${{matrix.folder}}/docker.yml"
 
       - name: docker up
-        run: docker-compose -f ./end-to-end/docker.yml -f ./end-to-end/${{matrix.folders}}/override.yml up -d
+        run: docker-compose -f ./end-to-end/docker.yml -f ./end-to-end/${{matrix.folder}}/override.yml up -d
         if: steps.check_docker_files.outputs.files_exists == 'false'
 
       - name: docker up
-        run: docker-compose -f ./end-to-end/${{matrix.folders}}/docker.yml up -d
+        run: docker-compose -f ./end-to-end/${{matrix.folder}}/docker.yml up -d
         if: steps.check_docker_files.outputs.files_exists == 'true'
 
       - name: list all containers
@@ -67,29 +67,29 @@ jobs:
 
       - name: Wait for results to be up
         run: make wait
-        working-directory: ./end-to-end/${{matrix.folders}}
+        working-directory: ./end-to-end/${{matrix.folder}}
 
       - name: run tests
         run: make test
-        working-directory: ./end-to-end/${{matrix.folders}}
+        working-directory: ./end-to-end/${{matrix.folder}}
 
       - name: Check newman existence
         id: check_newman_files
         uses: andstor/file-existence-action@v1
         with:
-          files: "./end-to-end/${{matrix.folders}}/e2e.postman_environment.json, ./end-to-end/${{matrix.folders}}/e2e.postman_collection.json"
+          files: "./end-to-end/${{matrix.folder}}/e2e.postman_environment.json, ./end-to-end/${{matrix.folder}}/e2e.postman_collection.json"
 
       - name: Run newman tests
         uses: matt-ball/newman-action@master
         if: steps.check_newman_files.outputs.files_exists == 'true'
         with:
-          collection: ./end-to-end/${{matrix.folders}}/e2e.postman_collection.json
-          environment: ./end-to-end/${{matrix.folders}}/e2e.postman_environment.json
+          collection: ./end-to-end/${{matrix.folder}}/e2e.postman_collection.json
+          environment: ./end-to-end/${{matrix.folder}}/e2e.postman_environment.json
           insecure: true
 
       - name: output logs
         if: ${{ failure() }}
-        working-directory: ./end-to-end/${{matrix.folders}}
+        working-directory: ./end-to-end/${{matrix.folder}}
         run: |
           docker ps
           echo "******************************************"
