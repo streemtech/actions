@@ -45,11 +45,22 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: harbor.streem.tech
-          username: ${{ secrets.HARBOR_USERNAME }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Check newman existence
+        id: check_docker_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "./end-to-end/${{matrix.folders}}/docker.yml"
 
       - name: docker up
         run: docker-compose -f ./end-to-end/docker.yml -f ./end-to-end/${{matrix.folders}}/override.yml up -d
+        if: steps.check_docker_files.outputs.files_exists == 'false'
+
+      - name: docker up
+        run: docker-compose -f ./end-to-end/${{matrix.folders}}/docker.yml up -d
+        if: steps.check_docker_files.outputs.files_exists == 'true'
 
       - name: list all containers
         run: docker ps -a
