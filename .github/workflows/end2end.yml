@@ -15,7 +15,7 @@ on:
       e2eFolders:
         required: true
         type: string
-        description: "a json array of the folders to cd into to run end to end tests against. Each folder must have a makefile with 'logs', 'wait', and 'test', along with a override.yml dockerfile."
+        description: "a json array of the folders to cd into to run end to end tests against. Each folder must have a makefile with 'logs', 'wait', 'test-pre', and 'test-post', along with a override.yml dockerfile."
       go_private: 
         description: "the string sent to GOPRIVATE env var"
         type: string
@@ -48,18 +48,21 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
+        # Checks if a full dockerfile exists to use.
       - name: Check dockerfile
         id: check_docker_files
         uses: andstor/file-existence-action@v1
         with:
-          files: "./end-to-end/${{matrix.folder}}/docker.yml"
+          files: "./end-to-end/${{matrix.folder}}/docker-compose.yml"
 
+        # If the full docker file does not exist, assume an override file exists and use that 
       - name: docker up (use base)
-        run: docker-compose -f ./end-to-end/docker.yml -f ./end-to-end/${{matrix.folder}}/override.yml up -d
+        run: docker-compose -f ./end-to-end/docker-compose.yml -f ./end-to-end/${{matrix.folder}}/override.yml up -d
         if: steps.check_docker_files.outputs.files_exists == 'false'
 
+        # Use only the full dockerfile.
       - name: docker up (all in test)
-        run: docker-compose -f ./end-to-end/${{matrix.folder}}/docker.yml up -d
+        run: docker-compose -f ./end-to-end/${{matrix.folder}}/docker-compose.yml up -d
         if: steps.check_docker_files.outputs.files_exists == 'true'
 
       - name: list all containers
@@ -69,8 +72,8 @@ jobs:
         run: make wait
         working-directory: ./end-to-end/${{matrix.folder}}
 
-      - name: run tests
-        run: make test
+      - name: run pre-newman tests
+        run: make test-pre
         working-directory: ./end-to-end/${{matrix.folder}}
 
       - name: Check newman existence
@@ -86,6 +89,10 @@ jobs:
           collection: ./end-to-end/${{matrix.folder}}/e2e.postman_collection.json
           environment: ./end-to-end/${{matrix.folder}}/e2e.postman_environment.json
           insecure: true
+
+      - name: run post newman tests
+        run: make test-post
+        working-directory: ./end-to-end/${{matrix.folder}}
 
       - name: output logs
         if: ${{ failure() }}
