@@ -119,7 +119,6 @@ jobs:
           push: true
           tags: |
             ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:test
-            ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ github.sha }}
           context: ./cmd/${{ matrix.service }}
           file: ./cmd/${{ matrix.service }}/dockerfile
 
@@ -143,7 +142,6 @@ jobs:
           push: true
           tags: |
             ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:qa-test
-            ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ github.sha }}
           context: ./cmd/${{ matrix.service }}
           file: ./cmd/${{ matrix.service }}/dockerfile
 
