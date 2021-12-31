@@ -119,6 +119,7 @@ jobs:
           push: true
           tags: |
             ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:test
+            ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ github.sha }}
           context: ./cmd/${{ matrix.service }}
           file: ./cmd/${{ matrix.service }}/dockerfile
 
@@ -135,20 +136,10 @@ jobs:
           context: ./cmd/${{ matrix.service }}
           file: ./cmd/${{ matrix.service }}/dockerfile
 
-      - name: Build and push qa testing containers
-        uses: docker/build-push-action@v2
-        if: inputs.push_state == 'qa-test'
-        with:
-          push: true
-          tags: |
-            ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:qa-test
-          context: ./cmd/${{ matrix.service }}
-          file: ./cmd/${{ matrix.service }}/dockerfile
-
       - name: Build and push qa deployment containers
         # not likely to ever get used, but here anyway.
         uses: docker/build-push-action@v2
-        if: inputs.push_state == 'qa-prod'
+        if: inputs.push_state == 'qa'
         with:
           push: true
           tags: |
