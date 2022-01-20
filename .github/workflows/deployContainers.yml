@@ -85,11 +85,11 @@ jobs:
       - name: Check Connect VPN
         run: ping ${{inputs.check_ip}} -c 1
 
-      - name: update image
-        run: |
-          kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ./kube.config \
-          set image deployment/${{inputs.deployment_prefix}}${{ matrix.service }}-deployment \
-          ${{inputs.deployment_prefix}}${{ matrix.service }}=${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ inputs.tag }}
+      # - name: update image
+      #   run: |
+      #     kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ./kube.config \
+      #     set image deployment/${{inputs.deployment_prefix}}${{ matrix.service }}-deployment \
+      #     ${{inputs.deployment_prefix}}${{ matrix.service }}=${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ inputs.tag }}
 
       - name: deploy
         run: |
