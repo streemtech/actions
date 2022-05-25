@@ -17,6 +17,21 @@ on:
         description: "the string sent to GOPRIVATE env var"
         type: string
         required: true
+      skip_static: 
+        description: "if static checking should be skipped"
+        type: boolean
+        required: false
+        default: false
+      skip_shadow: 
+        description: "if shadowning should be skipped"
+        type: boolean
+        required: false
+        default: false
+      skip_lint: 
+        description: "if linting should be skipped"
+        type: boolean
+        required: false
+        default: false
 
     outputs:
       newTag:   
@@ -62,7 +77,7 @@ jobs:
         uses: actions/setup-go@v2
         with:
           stable: 'false'
-          go-version: '1.18.0-beta1'
+          go-version: 1.18
 
       - name: restore go cache
         uses: actions/cache@v2
@@ -81,24 +96,27 @@ jobs:
       - name: Generate Coverage Report
         run: go tool cover -html=c.out -o coverage.html
 
-      # - name: Shadow Test
-      #   run: | 
-      #     go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
-      #     shadow -strict ./...
+      - name: Shadow Test
+        if: inputs.skip_shadow == false
+        run: | 
+          go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
+          shadow -strict ./...
 
-      # - name: Static Check
-      #   run: | 
-      #     go install honnef.co/go/tools/cmd/staticcheck@2021.1.2
-      #     staticcheck ./...
+      - name: Static Check
+        if: inputs.skip_shadow == false
+        run: | 
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          staticcheck ./...
 
-      # - name: golangci-lint
-      #   uses: golangci/golangci-lint-action@v2
-      #   with:
-      #     # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-      #     version: v1.43
-      #     skip-pkg-cache: true
-      #     skip-go-installation: true
-      #     skip-build-cache: true
+      - name: golangci-lint
+        if: inputs.skip_lint == false
+        uses: golangci/golangci-lint-action@v2
+        with:
+          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+          version: v1.46
+          skip-pkg-cache: true
+          skip-go-installation: true
+          skip-build-cache: true
 
 
       - name: Archive Test Coverage
@@ -110,7 +128,7 @@ jobs:
 
       - name: calculate test version number.
         id: bump_tag
-        uses: anothrNick/github-tag-action@1.36.0
+        uses: anothrNick/github-tag-action@1.39.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_AUTH_TOKEN }}
           WITH_V: true
