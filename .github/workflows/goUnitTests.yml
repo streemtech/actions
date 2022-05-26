@@ -100,13 +100,13 @@ jobs:
         if: inputs.skip_shadow == false
         run: | 
           go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
-          shadow -strict ./...
+          shadow -strict $(go list ./... | grep -v "api$")
 
       - name: Static Check
         if: inputs.skip_shadow == false
         run: | 
           go install honnef.co/go/tools/cmd/staticcheck@latest
-          staticcheck ./...
+          staticcheck $(go list ./... | grep -v "api$")
 
       - name: golangci-lint
         if: inputs.skip_lint == false
