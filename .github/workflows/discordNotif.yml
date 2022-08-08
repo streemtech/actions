@@ -1,0 +1,57 @@
+on:
+  workflow_call:
+    secrets:
+      DISCORD_WEBHOOK:
+        required: true
+        description: "value of the webhook to use for sending to discord"
+
+    inputs:
+      success:
+        required: true
+        type: boolean
+        description: "if the particular embed should send as a success or not."
+      ping_role_id:
+        required: true
+        type: string
+        description: "the id of the role to ping."
+      env_variant:
+        required: true
+        type: string
+        description: "what environment the event occurred in."
+      failure_reason:
+        required: true
+        type: string
+        description: "what environment the event occurred in."
+#Reusable Workflow. Not a composite action unf.
+
+jobs:
+  deployContainers:
+    strategy:
+      matrix:
+        service: ${{fromJson(inputs.services)}}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Discord Success Notification
+        uses: rjstone/discord-webhook-notify@v1
+        if: inputs.success == 'true'
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          severity: info
+          details: ${{join('Project ', $GITHUB_REPOSITORY ' has succeeded in deploying to ', inputs.env_variant)}}
+          text: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+
+      - name: Discord Fail Notification
+        uses: rjstone/discord-webhook-notify@v1
+        if: inputs.success != 'true'
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          severity: error
+          details: ${{ join('Project ', $GITHUB_REPOSITORY,' deployment failed in ', inputs.env_variant) }}
+          footer: ${{ inputs.failure_reason }}
+          text: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+          #TODO add role ping. <@&988658826599342120>
