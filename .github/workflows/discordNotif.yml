@@ -22,6 +22,18 @@ on:
         required: true
         type: string
         description: "what environment the event occurred in."
+      github_repository:
+        required: true
+        type: string
+        description: "the repository in question."
+      github_server_url:
+        required: true
+        type: string
+        description: "the github server url."
+      github_run_id:
+        required: true
+        type: string
+        description: "the run ID."
 #Reusable Workflow. Not a composite action unf.
 
 jobs:
@@ -37,8 +49,8 @@ jobs:
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
           webhookUrl: ${{ secrets.discord_webhook }}
           severity: info
-          details: Project ${{ env.GITHUB_REPOSITORY }} has succeeded in deploying to ${{ inputs.env_variant }}
-          text: ${{ env.GITHUB_SERVER_URL }}/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}
+          details: Project ${{ inputs.github_repository }} has succeeded in deploying to ${{ inputs.env_variant }}
+          text: ${{ inputs.github_server_url }}/${{ inputs.github_repository }}/actions/runs/${{ inputs.github_run_id }}
 
       - name: Discord Fail Notification
         uses: rjstone/discord-webhook-notify@v1
@@ -48,7 +60,7 @@ jobs:
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
           webhookUrl: ${{ secrets.discord_webhook }}
           severity: error
-          details: Project ${{ env.GITHUB_REPOSITORY }} deployment failed in ${{ inputs.env_variant }}
+          details: Project ${{ inputs.github_repository }} deployment failed in ${{ inputs.env_variant }}
           footer: ${{ inputs.failure_reason }}
-          text: ${{ env.GITHUB_SERVER_URL }}/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }} ${{ inputs.ping_role_id }}
+          text: ${{ inputs.github_server_url }}/${{ inputs.github_repository }}/actions/runs/${{ inputs.github_run_id }} ${{ inputs.ping_role_id }}
           #TODO add role ping. <@&988658826599342120>
