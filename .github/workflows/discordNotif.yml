@@ -26,9 +26,6 @@ on:
 
 jobs:
   deployContainers:
-    strategy:
-      matrix:
-        service: ${{fromJson(inputs.services)}}
     runs-on: ubuntu-latest
 
     steps:
