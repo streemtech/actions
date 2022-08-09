@@ -37,8 +37,8 @@ jobs:
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
           webhookUrl: ${{ secrets.discord_webhook }}
           severity: info
-          details: Project $GITHUB_REPOSITORY has succeeded in deploying to ${{ inputs.env_variant }}
-          text: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+          details: Project ${{ env.GITHUB_REPOSITORY }} has succeeded in deploying to ${{ inputs.env_variant }}
+          text: ${{ env.GITHUB_SERVER_URL }}/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}
 
       - name: Discord Fail Notification
         uses: rjstone/discord-webhook-notify@v1
@@ -48,7 +48,7 @@ jobs:
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
           webhookUrl: ${{ secrets.discord_webhook }}
           severity: error
-          details: Project $GITHUB_REPOSITORY deployment failed in ${{ inputs.env_variant }}
+          details: Project ${{ env.GITHUB_REPOSITORY }} deployment failed in ${{ inputs.env_variant }}
           footer: ${{ inputs.failure_reason }}
-          text: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID ${{ inputs.ping_role_id }}
+          text: ${{ env.GITHUB_SERVER_URL }}/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }} ${{ inputs.ping_role_id }}
           #TODO add role ping. <@&988658826599342120>
