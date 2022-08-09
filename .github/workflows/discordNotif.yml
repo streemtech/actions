@@ -1,7 +1,7 @@
 on:
   workflow_call:
     secrets:
-      DISCORD_WEBHOOK:
+      discord_webhook:
         required: true
         description: "value of the webhook to use for sending to discord"
 
@@ -38,7 +38,7 @@ jobs:
         with:
           username: Actions Bot
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
-          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          webhookUrl: ${{ secrets.discord_webhook }}
           severity: info
           details: ${{join('Project ', $GITHUB_REPOSITORY ' has succeeded in deploying to ', inputs.env_variant)}}
           text: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
@@ -49,9 +49,9 @@ jobs:
         with:
           username: Actions Bot
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
-          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          webhookUrl: ${{ secrets.discord_webhook }}
           severity: error
           details: ${{ join('Project ', $GITHUB_REPOSITORY,' deployment failed in ', inputs.env_variant) }}
           footer: ${{ inputs.failure_reason }}
-          text: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+          text: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID ${{ inputs.ping_role_id }}
           #TODO add role ping. <@&988658826599342120>
