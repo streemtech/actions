@@ -43,7 +43,7 @@ jobs:
     steps:
       - name: Discord Success Notification
         uses: rjstone/discord-webhook-notify@v1
-        if: ${{ inputs.success == 'true' }}
+        if: inputs.success
         with:
           username: Actions Bot
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
@@ -54,7 +54,7 @@ jobs:
 
       - name: Discord Fail Notification
         uses: rjstone/discord-webhook-notify@v1
-        if: ${{ inputs.success == 'true' }}
+        if: inputs.success
         with:
           username: Actions Bot
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
