@@ -40,7 +40,7 @@ jobs:
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
           webhookUrl: ${{ secrets.discord_webhook }}
           severity: info
-          details: ${{join('Project ', '$GITHUB_REPOSITORY', ' has succeeded in deploying to ', inputs.env_variant)}}
+          details: Project $GITHUB_REPOSITORY has succeeded in deploying to ${{ inputs.env_variant }}
           text: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
 
       - name: Discord Fail Notification
@@ -51,7 +51,7 @@ jobs:
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
           webhookUrl: ${{ secrets.discord_webhook }}
           severity: error
-          details: ${{ join('Project ', '$GITHUB_REPOSITORY', ' deployment failed in ', inputs.env_variant) }}
+          details: Project $GITHUB_REPOSITORY deployment failed in ${{ inputs.env_variant }}
           footer: ${{ inputs.failure_reason }}
           text: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID ${{ inputs.ping_role_id }}
           #TODO add role ping. <@&988658826599342120>
