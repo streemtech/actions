@@ -50,7 +50,7 @@ jobs:
           webhookUrl: ${{ secrets.discord_webhook }}
           severity: info
           details: Project ${{ inputs.github_repository }} has succeeded in deploying to ${{ inputs.env_variant }}
-          text: ${{ inputs.github_server_url }}/${{ inputs.github_repository }}/actions/runs/${{ inputs.github_run_id }}
+          text: ${{ inputs.github_server_url }}/${{ inputs.github_repository }}/actions
 
       - name: Discord Fail Notification
         uses: rjstone/discord-webhook-notify@v1
@@ -62,5 +62,5 @@ jobs:
           severity: error
           details: Project ${{ inputs.github_repository }} deployment failed in ${{ inputs.env_variant }}
           footer: ${{ inputs.failure_reason }}
-          text: ${{ inputs.github_server_url }}/${{ inputs.github_repository }}/actions/runs/${{ inputs.github_run_id }} ${{ inputs.ping_role_id }}
+          text: ${{ inputs.github_server_url }}/${{ inputs.github_repository }}/actions ${{ inputs.ping_role_id }}
           #TODO add role ping. <@&988658826599342120>
