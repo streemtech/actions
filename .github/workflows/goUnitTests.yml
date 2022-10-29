@@ -13,37 +13,37 @@ on:
         required: true
         type: boolean
         description: if the version should be incremented or not.
-      go_private: 
+      go_private:
         description: "the string sent to GOPRIVATE env var"
         type: string
         required: true
-      skip_static: 
+      skip_static:
         description: "if static checking should be skipped"
         type: boolean
         required: false
         default: false
-      skip_shadow: 
+      skip_shadow:
         description: "if shadowning should be skipped"
         type: boolean
         required: false
         default: false
-      skip_lint: 
+      skip_lint:
         description: "if linting should be skipped"
         type: boolean
         required: false
         default: false
 
     outputs:
-      newTag:   
+      newTag:
         description: "The full new tag cretaed"
         value: ${{ jobs.unitTests.outputs.newTag }}
-      tagMajor: 
+      tagMajor:
         description: "the major version of the tag"
         value: ${{ jobs.unitTests.outputs.tagMajor }}
-      tagMinor: 
+      tagMinor:
         description: "the minor version of the tag."
         value: ${{ jobs.unitTests.outputs.tagMinor }}
-      tagPatch: 
+      tagPatch:
         description: "the patch version of the tag."
         value: ${{ jobs.unitTests.outputs.tagPatch }}
 
@@ -51,7 +51,7 @@ on:
 jobs:
   unitTests:
     # strategy:
-    #   matrix: 
+    #   matrix:
     #     name: ${{fromJson(inputs.names)}}
     runs-on: ubuntu-latest
     outputs:
@@ -71,23 +71,17 @@ jobs:
           token: ${{ secrets.GITHUB_AUTH_TOKEN }}
 
       - name: Setup git config
-        run:  git config --global url.https://${{ secrets.GITHUB_AUTH_TOKEN }}@github.com/.insteadOf https://github.com/
+        run: git config --global url.https://${{ secrets.GITHUB_AUTH_TOKEN }}@github.com/.insteadOf https://github.com/
 
       - name: Setup Golang
         uses: actions/setup-go@v2
         with:
-          go-version: 1.18
-
-      - name: restore go cache
-        uses: actions/cache@v2
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-goTests-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-goTests-
+          go-version: 1.19
+          check-latest: true
+          cache: true
 
       - name: Generate
-        run: go generate ./...
+        run: make gen
 
       - name: Test
         run: go test -v -coverprofile=c.out ./...
@@ -97,13 +91,13 @@ jobs:
 
       - name: Shadow Test
         if: inputs.skip_shadow == false
-        run: | 
+        run: |
           go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
           shadow -strict $(go list ./... | grep -v "api$")
 
       - name: Static Check
         if: inputs.skip_shadow == false
-        run: | 
+        run: |
           go install honnef.co/go/tools/cmd/staticcheck@latest
           staticcheck $(go list ./... | grep -v "api$")
 
@@ -116,7 +110,6 @@ jobs:
           skip-pkg-cache: true
           skip-go-installation: true
           skip-build-cache: true
-
 
       - name: Archive Test Coverage
         uses: actions/upload-artifact@v2

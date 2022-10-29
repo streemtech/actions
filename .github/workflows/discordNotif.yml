@@ -60,7 +60,7 @@ jobs:
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
           webhookUrl: ${{ secrets.discord_webhook }}
           severity: error
-          details: Project ${{ inputs.github_repository }} deployment failed in ${{ inputs.env_variant }}
+          details: Project ${{ inputs.github_repository }} has failed in deploying to ${{ inputs.env_variant }}
           footer: ${{ inputs.failure_reason }}
           text: ${{ inputs.github_server_url }}/${{ inputs.github_repository }}/actions ${{ inputs.ping_role_id }}
           #TODO add role ping. <@&988658826599342120>
