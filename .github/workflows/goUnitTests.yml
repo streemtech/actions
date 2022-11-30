@@ -120,12 +120,13 @@ jobs:
 
       - name: calculate test version number.
         id: bump_tag
-        uses: anothrNick/github-tag-action@1.39.0
+        uses: anothrNick/github-tag-action@1.52.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_AUTH_TOKEN }}
           WITH_V: true
           DEFAULT_BUMP: patch
-          DRY_RUN: true
+          DRY_RUN: ${{ !input.version }}
+
       - name: Parse semver string
         id: semver_parser
         uses: booxmedialtd/ws-action-parse-semver@v1
