@@ -16,13 +16,12 @@ on:
         required: true
         type: string
         description: "a json array of the folders to cd into to run end to end tests against. Each folder must have a makefile with 'logs', 'wait', 'test-pre', and 'test-post', along with a override.yml dockerfile."
-      go_private: 
+      go_private:
         description: "the string sent to GOPRIVATE env var"
         type: string
         required: true
 
 jobs:
-
   #************* END TO END TESTS ***************
   endToEndTests:
     strategy:
@@ -47,12 +46,14 @@ jobs:
           registry: harbor.streem.tech
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-          
+
       - name: Setup Golang
         uses: actions/setup-go@v2
         with:
-          go-version: '1.18'
-          
+          go-version: 1.19
+          check-latest: true
+          cache: true
+
         # Checks if a full dockerfile exists to use.
       - name: Check dockerfile
         id: check_docker_files
@@ -60,7 +61,7 @@ jobs:
         with:
           files: "./end-to-end/${{matrix.folder}}/docker-compose.yml"
 
-        # If the full docker file does not exist, assume an override file exists and use that 
+        # If the full docker file does not exist, assume an override file exists and use that
       - name: docker up (use base)
         run: docker-compose -f ./end-to-end/docker-compose.yml -f ./end-to-end/${{matrix.folder}}/override.yml up -d
         if: steps.check_docker_files.outputs.files_exists == 'false'
