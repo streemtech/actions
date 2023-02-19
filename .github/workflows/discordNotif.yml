@@ -62,5 +62,5 @@ jobs:
           severity: error
           details: Project ${{ inputs.github_repository }} has failed in deploying to ${{ inputs.env_variant }}
           footer: ${{ inputs.failure_reason }}
-          text: ${{ inputs.github_server_url }}/${{ inputs.github_repository }}/actions ${{ inputs.ping_role_id }}
+          text: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} ${{ inputs.ping_role_id }}
           #TODO add role ping. <@&988658826599342120>
