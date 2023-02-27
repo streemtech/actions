@@ -10,6 +10,9 @@ on:
       # OVPN_CLIENT_KEY:
       #   required: true
       #   description: "the certificate key"
+      discord_webhook:
+        required: true
+        description: "value of the webhook to use for sending to discord"
 
     inputs:
       check_ip:
@@ -44,6 +47,18 @@ on:
         description: "the prefix used before the deployment name deployment/<PREFIX>asdf-deployment"
         required: true
         type: string
+      github_repository:
+        required: true
+        type: string
+        description: "the repository in question."
+      github_server_url:
+        required: true
+        type: string
+        description: "the github server url."
+      github_run_id:
+        required: true
+        type: string
+        description: "the run ID."
 #Reusable Workflow. Not a composite action unf.
 
 jobs:
@@ -58,10 +73,23 @@ jobs:
         with:
           version: ${{inputs.kube_version}}
 
+
       - name: Install OpenVPN
         run: |
           sudo apt update
           sudo apt install -y openvpn openvpn-systemd-resolved
+      - name: Install OpenVPN Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: Installed OpenVPN 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - run: 'echo "$VPN_CONFIG" > ./config.ovpn'
         name: create ovpn file
@@ -74,6 +102,18 @@ jobs:
         with:
           config_file: ./config.ovpn
           # client_key: ${{ secrets.OVPN_CLIENT_KEY }}
+      - name: Connect to VPN Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: Connect to VPN 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - run: 'echo "$KUBE_CONFIG" > ./kube.config'
         name: create kube config file
@@ -83,14 +123,55 @@ jobs:
 
       - name: Check Connect VPN
         run: ping ${{inputs.check_ip}} -c 1
+      - name: Check Connect VPN Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: Check Connect VPN 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: update and reset image
         run: |
           kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ./kube.config \
           set image deployment/${{inputs.deployment_prefix}}${{ matrix.service }}-deployment \
           ${{inputs.deployment_prefix}}${{ matrix.service }}=${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ inputs.tag }}
+      - name: update and reset image Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: update and reset image 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: deploy
         run: |
           kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ./kube.config \
           rollout restart deployment/${{inputs.deployment_prefix}}${{ matrix.service }}-deployment
+      - name: deploy Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: deploy 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+
+#TODO see https://docs.github.com/en/actions/learn-github-actions/expressions#status-check-functions
+# and https://stackoverflow.com/questions/63314096/running-a-github-actions-step-only-if-specific-steps-failed
+# for post- steps 

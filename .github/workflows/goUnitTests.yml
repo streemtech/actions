@@ -7,6 +7,9 @@ on:
       GITHUB_AUTH_TOKEN: #This can NOT be GITHUB_TOKEN as that is a pre-set secret.
         required: true
         description: "the token used to pull data from github, and checkout as needed."
+      discord_webhook:
+        required: true
+        description: "value of the webhook to use for sending to discord"
 
     inputs:
       version:
@@ -32,6 +35,18 @@ on:
         type: boolean
         required: false
         default: false
+      github_repository:
+        required: true
+        type: string
+        description: "the repository in question."
+      github_server_url:
+        required: true
+        type: string
+        description: "the github server url."
+      github_run_id:
+        required: true
+        type: string
+        description: "the run ID."
 
     outputs:
       newTag:
@@ -82,9 +97,37 @@ jobs:
 
       - name: Generate
         run: make gen
+      - name: Generate Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: Generate 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+
 
       - name: Test
         run: go test -v -coverprofile=c.out ./...
+      - name: Test Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: Test 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+
 
       - name: Generate Coverage Report
         run: go tool cover -html=c.out -o coverage.html
@@ -94,12 +137,40 @@ jobs:
         run: |
           go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
           shadow -strict $(go list ./... | grep -v "api$")
+      - name: Shadow Test Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: Shadow Test 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+
 
       - name: Static Check
         if: inputs.skip_static == false
         run: |
           go install honnef.co/go/tools/cmd/staticcheck@latest
           staticcheck $(go list ./... | grep -v "api$")
+      - name: Static Check Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: Static Check 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+
 
       - name: golangci-lint
         if: inputs.skip_lint == false
@@ -110,6 +181,20 @@ jobs:
           skip-pkg-cache: true
           skip-go-installation: true
           skip-build-cache: true
+      - name: lint Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: lint 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+
 
       - name: Archive Test Coverage
         uses: actions/upload-artifact@v2

@@ -10,6 +10,9 @@ on:
       GITHUB_AUTH_TOKEN:
         required: true
         description: "the token used to pull data from github, and checkout as needed."
+      discord_webhook:
+        required: true
+        description: "value of the webhook to use for sending to discord"
 
     inputs:
       e2eFolders:
@@ -20,6 +23,18 @@ on:
         description: "the string sent to GOPRIVATE env var"
         type: string
         required: true
+      github_repository:
+        required: true
+        type: string
+        description: "the repository in question."
+      github_server_url:
+        required: true
+        type: string
+        description: "the github server url."
+      github_run_id:
+        required: true
+        type: string
+        description: "the run ID."
 
 jobs:
   #************* END TO END TESTS ***************
@@ -50,7 +65,7 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19
+          go-version: 1.20
           check-latest: true
           cache: true
 
@@ -77,10 +92,34 @@ jobs:
       - name: Wait for results to be up
         run: make wait
         working-directory: ./end-to-end/${{matrix.folder}}
+      - name: Wait for results to be up Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: Wait for results to be up 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: run pre-newman tests
         run: make test-pre
         working-directory: ./end-to-end/${{matrix.folder}}
+      - name: run pre-newman tests Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: run pre-newman tests 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Check newman existence
         id: check_newman_files
@@ -95,10 +134,34 @@ jobs:
           collection: ./end-to-end/${{matrix.folder}}/e2e.postman_collection.json
           environment: ./end-to-end/${{matrix.folder}}/e2e.postman_environment.json
           insecure: true
+      - name: Run newman tests Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: Run newman tests 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: run post newman tests
         run: make test-post
         working-directory: ./end-to-end/${{matrix.folder}}
+      - name: run post newman tests Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: run post newman tests 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: output logs
         if: ${{ failure() }}

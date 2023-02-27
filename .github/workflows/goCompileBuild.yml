@@ -10,6 +10,9 @@ on:
       REGISTRY_PASSWORD:
         required: true
         description: the password for the registry
+      discord_webhook:
+        required: true
+        description: "value of the webhook to use for sending to discord"
 
     inputs:
       services:
@@ -44,6 +47,18 @@ on:
         description: "the string sent to GOPRIVATE env var"
         type: string
         required: true
+      github_repository:
+        required: true
+        type: string
+        description: "the repository in question."
+      github_server_url:
+        required: true
+        type: string
+        description: "the github server url."
+      github_run_id:
+        required: true
+        type: string
+        description: "the run ID."
 #Reusable Workflow. Not a composite action unf.
 jobs:
   compileBuildPush:
@@ -69,7 +84,7 @@ jobs:
         if: inputs.push_state == 'test'
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19
+          go-version: 1.20
           check-latest: true
           cache: true
 
@@ -79,6 +94,18 @@ jobs:
       - name: Generate
         if: inputs.push_state == 'test'
         run: make gen
+      - name: Generate Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: Generate 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Compile executable
         if: inputs.push_state == 'test'
@@ -99,6 +126,18 @@ jobs:
           echo $COMPILE_METHOD
           echo $DOCKER_TAG
           CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X 'github.com/streemtech/libraries.GitHashShort=$GIT_HASH_SHORT' -X 'github.com/streemtech/libraries.GitHash=$GIT_HASH' -X 'github.com/streemtech/libraries.GitTag=$GIT_TAG' -X 'github.com/streemtech/libraries.GitCommitDate=$GIT_COMMIT_DATE' -X 'github.com/streemtech/libraries.CompileDate=$COMPILE_DATE' -X 'github.com/streemtech/libraries.CompileMethod=$COMPILE_METHOD' -X 'github.com/streemtech/libraries.DockerTag=$DOCKER_TAG'" -o main .
+      - name: Compiled Notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: Compiled 
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Login to Harbor
         uses: docker/login-action@v1
@@ -135,3 +174,16 @@ jobs:
             --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:q${{ inputs.tagMajor }} \
             --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:q${{ inputs.tagMajor }}.${{ inputs.tagMinor }} \
             --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:q${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}
+
+      - name: BuildAndPush notification
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          username: Actions Bot
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
+          webhookUrl: ${{ secrets.discord_webhook }}
+          severity: info
+          color: "#851ebd"
+          description: | 
+            Repository: ${{ inputs.github_repository }} 
+            Step: Build And push
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
