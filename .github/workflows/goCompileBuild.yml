@@ -100,7 +100,7 @@ jobs:
             echo $COMPILE_METHOD
             echo $DOCKER_TAG
             CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X 'github.com/streemtech/libraries.GitHashShort=$GIT_HASH_SHORT' -X 'github.com/streemtech/libraries.GitHash=$GIT_HASH' -X 'github.com/streemtech/libraries.GitTag=$GIT_TAG' -X 'github.com/streemtech/libraries.GitCommitDate=$GIT_COMMIT_DATE' -X 'github.com/streemtech/libraries.CompileDate=$COMPILE_DATE' -X 'github.com/streemtech/libraries.CompileMethod=$COMPILE_METHOD' -X 'github.com/streemtech/libraries.DockerTag=$DOCKER_TAG'" -o main .
-            cd ..
+            cd ../..
           done
 
       - name: Login to Harbor
@@ -111,15 +111,13 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build and push testing containers
-        uses: docker/build-push-action@v4
         if: inputs.push_state == 'test'
-        with:
-          push: true
-          tags: |
-            ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:test
-            ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ github.sha }}
-          context: ./cmd/$i
-          file: ./cmd/$i/dockerfile
+        run: |
+          echo '${{inputs.services}}' | jq -r -c '.[]' | while read i; do
+            docker buildx build --push -f ./cmd/$i/dockerfile 
+            --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:test \
+            --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ github.sha }} ./cmd/$i
+          done
 
       - name: Build and push production containers
         if: inputs.push_state == 'prod'
@@ -142,3 +140,6 @@ jobs:
               --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:q${{ inputs.tagMajor }}.${{ inputs.tagMinor }} \
               --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:q${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}
           done
+
+
+
