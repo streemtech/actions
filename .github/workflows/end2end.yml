@@ -41,18 +41,17 @@ jobs:
         run: git config --global url."https://x-oauth-basic:${{ secrets.GITHUB_AUTH_TOKEN }}@github.com".insteadOf "https://github.com"
 
       - name: Login to Harbor
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: harbor.streem.tech
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Setup Golang
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.19
+          go-version: 1.20
           check-latest: true
-          cache: true
 
         # Checks if a full dockerfile exists to use.
       - name: Check dockerfile
@@ -63,12 +62,12 @@ jobs:
 
         # If the full docker file does not exist, assume an override file exists and use that
       - name: docker up (use base)
-        run: docker-compose -f ./end-to-end/docker-compose.yml -f ./end-to-end/${{matrix.folder}}/override.yml up -d
+        run: docker compose -f ./end-to-end/docker-compose.yml -f ./end-to-end/${{matrix.folder}}/override.yml up -d
         if: steps.check_docker_files.outputs.files_exists == 'false'
 
         # Use only the full dockerfile.
       - name: docker up (all in test)
-        run: docker-compose -f ./end-to-end/${{matrix.folder}}/docker-compose.yml up -d
+        run: docker compose -f ./end-to-end/${{matrix.folder}}/docker-compose.yml up -d
         if: steps.check_docker_files.outputs.files_exists == 'true'
 
       - name: list all containers

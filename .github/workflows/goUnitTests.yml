@@ -74,11 +74,10 @@ jobs:
         run: git config --global url.https://${{ secrets.GITHUB_AUTH_TOKEN }}@github.com/.insteadOf https://github.com/
 
       - name: Setup Golang
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.19
+          go-version: 1.20
           check-latest: true
-          cache: true
 
       - name: Generate
         run: make gen
@@ -103,12 +102,12 @@ jobs:
 
       - name: golangci-lint
         if: inputs.skip_lint == false
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v3
         with:
+            #TODO0 save-state borked
           # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
           version: v1.46
           skip-pkg-cache: true
-          skip-go-installation: true
           skip-build-cache: true
 
       - name: Archive Test Coverage
@@ -120,7 +119,7 @@ jobs:
 
       - name: calculate test version number.
         id: bump_tag
-        uses: anothrNick/github-tag-action@1.52.0
+        uses: anothrNick/github-tag-action@1.66.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_AUTH_TOKEN }}
           WITH_V: true
@@ -129,6 +128,6 @@ jobs:
 
       - name: Parse semver string
         id: semver_parser
-        uses: booxmedialtd/ws-action-parse-semver@v1
+        uses: booxmedialtd/ws-action-parse-semver@v1.4.7
         with:
           input_string: "${{ steps.bump_tag.outputs.new_tag }}"
