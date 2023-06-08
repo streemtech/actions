@@ -124,6 +124,7 @@ jobs:
           WITH_V: true
           DEFAULT_BUMP: patch
           DRY_RUN: ${{ !inputs.version }}
+          VERBOSE: true
 
       - name: Parse semver string
         id: semver_parser
