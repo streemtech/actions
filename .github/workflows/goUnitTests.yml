@@ -104,9 +104,8 @@ jobs:
         if: inputs.skip_lint == false
         uses: golangci/golangci-lint-action@v3
         with:
-            #TODO0 save-state borked
           # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-          version: v1.46
+          version: latest
           skip-pkg-cache: true
           skip-build-cache: true
 
