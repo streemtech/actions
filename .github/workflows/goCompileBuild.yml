@@ -48,9 +48,9 @@ on:
 jobs:
   compileBuildPush:
     runs-on: self-hosted
-    strategy:
-      matrix:
-        service: ${{fromJson(inputs.services)}}
+    # strategy:
+    #   matrix:
+        # service: ${{fromJson(inputs.services)}}
     env:
       GOPRIVATE: ${{inputs.go_private}}
     steps:
@@ -82,22 +82,25 @@ jobs:
       - name: Compile executable
         if: inputs.push_state == 'test'
         run: |
-          cd cmd/${{ matrix.service }}
-          export GIT_HASH_SHORT=$(git rev-parse --short HEAD)
-          export GIT_HASH=$(git rev-parse HEAD)
-          export GIT_TAG="${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}"
-          export GIT_COMMIT_DATE=$(git show -s --format=%ci HEAD)
-          export COMPILE_DATE=$(date)
-          export COMPILE_METHOD="Github Actions"
-          export DOCKER_TAG="${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}"
-          echo $GIT_HASH_SHORT
-          echo $GIT_HASH
-          echo $GIT_TAG
-          echo $GIT_COMMIT_DATE
-          echo $COMPILE_DATE
-          echo $COMPILE_METHOD
-          echo $DOCKER_TAG
-          CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X 'github.com/streemtech/libraries.GitHashShort=$GIT_HASH_SHORT' -X 'github.com/streemtech/libraries.GitHash=$GIT_HASH' -X 'github.com/streemtech/libraries.GitTag=$GIT_TAG' -X 'github.com/streemtech/libraries.GitCommitDate=$GIT_COMMIT_DATE' -X 'github.com/streemtech/libraries.CompileDate=$COMPILE_DATE' -X 'github.com/streemtech/libraries.CompileMethod=$COMPILE_METHOD' -X 'github.com/streemtech/libraries.DockerTag=$DOCKER_TAG'" -o main .
+          echo "${{inputs.services}}" | jq -r -c '.[]' | while read i; do
+            cd cmd/$i
+            export GIT_HASH_SHORT=$(git rev-parse --short HEAD)
+            export GIT_HASH=$(git rev-parse HEAD)
+            export GIT_TAG="${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}"
+            export GIT_COMMIT_DATE=$(git show -s --format=%ci HEAD)
+            export COMPILE_DATE=$(date)
+            export COMPILE_METHOD="Github Actions"
+            export DOCKER_TAG="${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}"
+            echo $GIT_HASH_SHORT
+            echo $GIT_HASH
+            echo $GIT_TAG
+            echo $GIT_COMMIT_DATE
+            echo $COMPILE_DATE
+            echo $COMPILE_METHOD
+            echo $DOCKER_TAG
+            CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X 'github.com/streemtech/libraries.GitHashShort=$GIT_HASH_SHORT' -X 'github.com/streemtech/libraries.GitHash=$GIT_HASH' -X 'github.com/streemtech/libraries.GitTag=$GIT_TAG' -X 'github.com/streemtech/libraries.GitCommitDate=$GIT_COMMIT_DATE' -X 'github.com/streemtech/libraries.CompileDate=$COMPILE_DATE' -X 'github.com/streemtech/libraries.CompileMethod=$COMPILE_METHOD' -X 'github.com/streemtech/libraries.DockerTag=$DOCKER_TAG'" -o main .
+            cd ..
+          done
 
       - name: Login to Harbor
         uses: docker/login-action@v2
@@ -112,25 +115,29 @@ jobs:
         with:
           push: true
           tags: |
-            ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:test
-            ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ github.sha }}
-          context: ./cmd/${{ matrix.service }}
-          file: ./cmd/${{ matrix.service }}/dockerfile
+            ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:test
+            ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ github.sha }}
+          context: ./cmd/$i
+          file: ./cmd/$i/dockerfile
 
       - name: Build and push production containers
         if: inputs.push_state == 'prod'
         run: |
-          docker buildx imagetools create ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ github.sha }} \
-            --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:latest \
-            --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:v${{ inputs.tagMajor }} \
-            --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:v${{ inputs.tagMajor }}.${{ inputs.tagMinor }} \
-            --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:v${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}
+          echo "${{inputs.services}}" | jq -r -c '.[]' | while read i; do
+            docker buildx imagetools create ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ github.sha }} \
+              --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:latest \
+              --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:v${{ inputs.tagMajor }} \
+              --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:v${{ inputs.tagMajor }}.${{ inputs.tagMinor }} \
+              --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:v${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}
+          done
 
       - name: Build and push qa deployment containers
         if: inputs.push_state == 'qa'
         run: |
-          docker buildx imagetools create ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ github.sha }} \
-            --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:qa-latest \
-            --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:q${{ inputs.tagMajor }} \
-            --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:q${{ inputs.tagMajor }}.${{ inputs.tagMinor }} \
-            --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:q${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}
+          echo "${{inputs.services}}" | jq -r -c '.[]' | while read i; do
+            docker buildx imagetools create ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ github.sha }} \
+              --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:qa-latest \
+              --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:q${{ inputs.tagMajor }} \
+              --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:q${{ inputs.tagMajor }}.${{ inputs.tagMinor }} \
+              --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:q${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}
+          done
