@@ -48,9 +48,9 @@ on:
 
 jobs:
   deployContainers:
-    strategy:
-      matrix:
-        service: ${{fromJson(inputs.services)}}
+    # strategy:
+    #   matrix:
+    #     service: ${{fromJson(inputs.services)}}
     runs-on: self-hosted
 
     steps:
@@ -86,11 +86,16 @@ jobs:
 
       - name: update and reset image
         run: |
-          kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ~/.kube.config \
-          set image deployment/${{inputs.deployment_prefix}}${{ matrix.service }}-deployment \
-          ${{inputs.deployment_prefix}}${{ matrix.service }}=${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ inputs.tag }}
+          
+          echo '${{inputs.services}}' | jq -r -c '.[]' | while read i; do
+            kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ~/.kube.config \
+            set image deployment/${{inputs.deployment_prefix}}$i-deployment \
+            ${{inputs.deployment_prefix}}$i=${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ inputs.tag }}
+          done
 
       - name: deploy
         run: |
-          kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ~/.kube.config \
-          rollout restart deployment/${{inputs.deployment_prefix}}${{ matrix.service }}-deployment
+          echo '${{inputs.services}}' | jq -r -c '.[]' | while read i; do
+            kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ~/.kube.config \
+            rollout restart deployment/${{inputs.deployment_prefix}}$i-deployment
+          done
