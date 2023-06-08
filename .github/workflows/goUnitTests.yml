@@ -53,7 +53,7 @@ jobs:
     # strategy:
     #   matrix:
     #     name: ${{fromJson(inputs.names)}}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       newTag: ${{ steps.bump_tag.outputs.new_tag }}
       tagMajor: ${{ steps.semver_parser.outputs.major }}

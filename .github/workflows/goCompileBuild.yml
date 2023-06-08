@@ -47,7 +47,7 @@ on:
 #Reusable Workflow. Not a composite action unf.
 jobs:
   compileBuildPush:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         service: ${{fromJson(inputs.services)}}
