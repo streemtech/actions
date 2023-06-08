@@ -71,6 +71,7 @@ jobs:
         with:
           go-version: '1.20'
           check-latest: true
+          cache: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -82,7 +83,7 @@ jobs:
       - name: Compile executable
         if: inputs.push_state == 'test'
         run: |
-          echo "${{inputs.services}}" | jq -r -c '.[]' | while read i; do
+          echo '${{inputs.services}}' | jq -r -c '.[]' | while read i; do
             cd cmd/$i
             export GIT_HASH_SHORT=$(git rev-parse --short HEAD)
             export GIT_HASH=$(git rev-parse HEAD)
@@ -123,7 +124,7 @@ jobs:
       - name: Build and push production containers
         if: inputs.push_state == 'prod'
         run: |
-          echo "${{inputs.services}}" | jq -r -c '.[]' | while read i; do
+          echo '${{inputs.services}}' | jq -r -c '.[]' | while read i; do
             docker buildx imagetools create ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ github.sha }} \
               --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:latest \
               --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:v${{ inputs.tagMajor }} \
@@ -134,7 +135,7 @@ jobs:
       - name: Build and push qa deployment containers
         if: inputs.push_state == 'qa'
         run: |
-          echo "${{inputs.services}}" | jq -r -c '.[]' | while read i; do
+          echo '${{inputs.services}}' | jq -r -c '.[]' | while read i; do
             docker buildx imagetools create ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ github.sha }} \
               --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:qa-latest \
               --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:q${{ inputs.tagMajor }} \
