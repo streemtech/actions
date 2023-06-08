@@ -61,9 +61,9 @@ jobs:
           persist-credentials: false
           token: ${{ secrets.GITHUB_AUTH_TOKEN }}
 
-      - name: Setup git config
-        if: inputs.push_state == 'test'
-        run: git config --global url."https://x-oauth-basic:${{ secrets.GITHUB_AUTH_TOKEN }}@github.com".insteadOf "https://github.com"
+    #   - name: Setup git config
+    #     if: inputs.push_state == 'test'
+    #     run: git config --global url."https://x-oauth-basic:${{ secrets.GITHUB_AUTH_TOKEN }}@github.com".insteadOf "https://github.com"
 
       - name: Setup Golang
         if: inputs.push_state == 'test'
