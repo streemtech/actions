@@ -83,22 +83,23 @@ jobs:
       - name: Compile executable
         if: inputs.push_state == 'test'
         run: |
+          export GIT_HASH_SHORT=$(git rev-parse --short HEAD)
+          export GIT_HASH=$(git rev-parse HEAD)
+          export GIT_TAG="${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}"
+          export GIT_COMMIT_DATE=$(git show -s --format=%ci HEAD)
+          export COMPILE_DATE=$(date)
+          export COMPILE_METHOD="Github Actions"
+          export DOCKER_TAG="${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}"
+          echo $GIT_HASH_SHORT
+          echo $GIT_HASH
+          echo $GIT_TAG
+          echo $GIT_COMMIT_DATE
+          echo $COMPILE_DATE
+          echo $COMPILE_METHOD
+          echo $DOCKER_TAG
           echo '${{inputs.services}}' | jq -r -c '.[]' | while read i; do
             cd cmd/$i
-            export GIT_HASH_SHORT=$(git rev-parse --short HEAD)
-            export GIT_HASH=$(git rev-parse HEAD)
-            export GIT_TAG="${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}"
-            export GIT_COMMIT_DATE=$(git show -s --format=%ci HEAD)
-            export COMPILE_DATE=$(date)
-            export COMPILE_METHOD="Github Actions"
-            export DOCKER_TAG="${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}"
-            echo $GIT_HASH_SHORT
-            echo $GIT_HASH
-            echo $GIT_TAG
-            echo $GIT_COMMIT_DATE
-            echo $COMPILE_DATE
-            echo $COMPILE_METHOD
-            echo $DOCKER_TAG
+            echo building $i
             CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X 'github.com/streemtech/libraries.GitHashShort=$GIT_HASH_SHORT' -X 'github.com/streemtech/libraries.GitHash=$GIT_HASH' -X 'github.com/streemtech/libraries.GitTag=$GIT_TAG' -X 'github.com/streemtech/libraries.GitCommitDate=$GIT_COMMIT_DATE' -X 'github.com/streemtech/libraries.CompileDate=$COMPILE_DATE' -X 'github.com/streemtech/libraries.CompileMethod=$COMPILE_METHOD' -X 'github.com/streemtech/libraries.DockerTag=$DOCKER_TAG'" -o main .
             cd ../..
           done
@@ -114,7 +115,7 @@ jobs:
         if: inputs.push_state == 'test'
         run: |
           echo '${{inputs.services}}' | jq -r -c '.[]' | while read i; do
-            docker buildx build --push -f ./cmd/$i/dockerfile 
+            docker buildx build --push -f ./cmd/$i/dockerfile \
             --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:test \
             --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ github.sha }} ./cmd/$i
           done
