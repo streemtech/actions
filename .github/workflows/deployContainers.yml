@@ -75,7 +75,7 @@ jobs:
     #       config_file: ./config.ovpn
     #       # client_key: ${{ secrets.OVPN_CLIENT_KEY }}
 
-      - run: 'echo "$KUBE_CONFIG" > ./kube.config'
+      - run: 'echo "$KUBE_CONFIG" > ~/.kube.config'
         name: create kube config file
         shell: bash
         env:
@@ -86,11 +86,11 @@ jobs:
 
       - name: update and reset image
         run: |
-          kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ./kube.config \
+          kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ~/.kube.config \
           set image deployment/${{inputs.deployment_prefix}}${{ matrix.service }}-deployment \
           ${{inputs.deployment_prefix}}${{ matrix.service }}=${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/${{ matrix.service }}:${{ inputs.tag }}
 
       - name: deploy
         run: |
-          kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ./kube.config \
+          kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ~/.kube.config \
           rollout restart deployment/${{inputs.deployment_prefix}}${{ matrix.service }}-deployment
