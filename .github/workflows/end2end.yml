@@ -37,8 +37,8 @@ jobs:
         with:
           persist-credentials: false
 
-    #   - name: Setup git config
-    #     run: git config --global url."https://x-oauth-basic:${{ secrets.GITHUB_AUTH_TOKEN }}@github.com".insteadOf "https://github.com"
+      - name: Setup git config
+        run: git config --global url."https://x-oauth-basic:${{ secrets.GITHUB_AUTH_TOKEN }}@github.com".insteadOf "https://github.com"
 
       - name: Login to Harbor
         uses: docker/login-action@v2
