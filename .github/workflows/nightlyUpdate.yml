@@ -1,0 +1,49 @@
+on:
+  workflow_call:
+    secrets:
+      GITHUB_AUTH_TOKEN: #This can NOT be GITHUB_TOKEN as that is a pre-set secret.
+        required: true
+        description: "the token used to pull data from github, and checkout as needed."
+
+    inputs:
+      go_private:
+        description: "the string sent to GOPRIVATE env var"
+        type: string
+        required: true
+      branch:
+        description: "the branch to reference for updates"
+        type: string
+        required: true
+
+#Reusable Workflow. Not a composite action unf.
+jobs:
+  nightlyUpdate:
+    runs-on: self-hosted
+    env:
+      GOPRIVATE: ${{inputs.go_private}}
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+          token: ${{ secrets.GITHUB_AUTH_TOKEN }}
+          ref: ${{inputs.branch}}
+
+      - name: "Update everything"
+        run: |
+          go get -u ./...
+
+      - name: "re-generate as needed"
+        run: |
+          make gen
+
+      - name: Run local test.
+        run: go test -v ./...
+
+      - name: Commit & Push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Auto-Update"
+          branch: ${{inputs.go_private}}
