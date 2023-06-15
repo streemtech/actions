@@ -32,8 +32,12 @@ jobs:
           ref: ${{inputs.branch}}
 
       - name: "Update everything"
+        id: update
         run: |
-          go get -u ./...
+          UPDATES=$(go list -u -f '{{if and (not .Main) (not (eq .Update nil)) }}{{.Path}} upgrading from {{.Version}} to {{.Update.Version}} {{end}}' -m all | grep streemtech)
+          go get -u $(go list -f '{{if not .Main}}{{.Path}}{{end}}' -m all | grep streemtech)
+          go mod tidy
+          echo "UPDATES=$UPDATES" >> "$GITHUB_OUTPUT"
 
       - name: "re-generate as needed"
         run: |
@@ -45,5 +49,5 @@ jobs:
       - name: Commit & Push changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Auto-Update"
+          commit_message: "Auto-Update #patch\n\n${{steps.update.outputs.UPDATES}}"
           branch: ${{inputs.go_private}}

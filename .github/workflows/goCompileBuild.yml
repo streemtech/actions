@@ -100,7 +100,7 @@ jobs:
           echo '${{inputs.services}}' | jq -r -c '.[]' | while read i; do
             cd cmd/$i
             echo building $i
-            CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X 'github.com/streemtech/libraries.GitHashShort=$GIT_HASH_SHORT' -X 'github.com/streemtech/libraries.GitHash=$GIT_HASH' -X 'github.com/streemtech/libraries.GitTag=$GIT_TAG' -X 'github.com/streemtech/libraries.GitCommitDate=$GIT_COMMIT_DATE' -X 'github.com/streemtech/libraries.CompileDate=$COMPILE_DATE' -X 'github.com/streemtech/libraries.CompileMethod=$COMPILE_METHOD' -X 'github.com/streemtech/libraries.DockerTag=$DOCKER_TAG'" -o main .
+            GOOS=linux go build -a -installsuffix cgo -ldflags "-X 'github.com/streemtech/libraries.GitHashShort=$GIT_HASH_SHORT' -X 'github.com/streemtech/libraries.GitHash=$GIT_HASH' -X 'github.com/streemtech/libraries.GitTag=$GIT_TAG' -X 'github.com/streemtech/libraries.GitCommitDate=$GIT_COMMIT_DATE' -X 'github.com/streemtech/libraries.CompileDate=$COMPILE_DATE' -X 'github.com/streemtech/libraries.CompileMethod=$COMPILE_METHOD' -X 'github.com/streemtech/libraries.DockerTag=$DOCKER_TAG'" -o main .
             cd ../..
           done
 

@@ -94,6 +94,6 @@ jobs:
           make logs
 
       - name: docker down
-        run: docker compose -f ./end-to-end/docker-compose.yml down || true
+        run: docker compose -f ./end-to-end/docker-compose.yml down || docker compose -f ./end-to-end/docker-compose.yml rm || true
         if: always()
   
