@@ -23,7 +23,7 @@ on:
         required: false
         default: false
       skip_shadow:
-        description: "if shadowning should be skipped"
+        description: "if shadowing should be skipped"
         type: boolean
         required: false
         default: false
