@@ -57,6 +57,7 @@ jobs:
           UPDATES=$(go list -u -f '{{if and (not .Main) (not (eq .Update nil)) }}{{.Path}} upgrading from {{.Version}} to {{.Update.Version}} {{end}}' -m all)
           go get -u ./...
           go mod tidy
+          #echo "UPDATES=$UPDATES" >> "$GITHUB_OUTPUT"
 
       - name: "Update Streemtech"
         if: ${{ !inputs.all }}
@@ -65,6 +66,7 @@ jobs:
           UPDATES=$(go list -u -f '{{if and (not .Main) (not (eq .Update nil)) }}{{.Path}} upgrading from {{.Version}} to {{.Update.Version}} {{end}}' -m all | grep streemtech)
           go get -u $(go list -f '{{if not .Main}}{{.Path}}{{end}}' -m all | grep streemtech)
           go mod tidy
+          #echo "UPDATES=$UPDATES" >> "$GITHUB_OUTPUT"
 
       - name: "re-generate as needed"
         run: |
@@ -110,11 +112,11 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Auto-Update #patch\n\n${{steps.update_all.outputs.UPDATES}}"
-          branch: ${{inputs.go_private}}
+          branch: ${{inputs.branch}}
 
       - name: Commit & Push changes
         if: ${{ !inputs.all }}
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Auto-Update #patch\n\n${{steps.update.outputs.UPDATES}}"
-          branch: ${{inputs.go_private}}
+          branch: ${{inputs.branch}}
