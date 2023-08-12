@@ -111,12 +111,12 @@ jobs:
         if: ${{ inputs.all }}
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Auto-Update #patch\n\n${{steps.update_all.outputs.UPDATES}}"
+          commit_message: "Auto-Update All #patch"
           branch: ${{inputs.branch}}
 
       - name: Commit & Push changes
         if: ${{ !inputs.all }}
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Auto-Update #patch\n\n${{steps.update.outputs.UPDATES}}"
+          commit_message: "Auto-Update Streemtech #patch"
           branch: ${{inputs.branch}}
