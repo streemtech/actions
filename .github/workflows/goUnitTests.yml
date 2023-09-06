@@ -119,7 +119,7 @@ jobs:
 
       - name: calculate test version number.
         id: bump_tag
-        uses: anothrNick/github-tag-action@1.52.0
+        uses: anothrNick/github-tag-action@1.67.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_AUTH_TOKEN }}
           WITH_V: true
