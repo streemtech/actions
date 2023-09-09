@@ -48,6 +48,7 @@ on:
 
 jobs:
   deployContainers:
+    timeout-minutes: 2
     # strategy:
     #   matrix:
     #     service: ${{fromJson(inputs.services)}}

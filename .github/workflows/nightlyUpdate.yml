@@ -37,6 +37,7 @@ on:
 #Reusable Workflow. Not a composite action unf.
 jobs:
   nightlyUpdate:
+    timeout-minutes: 15
     runs-on: self-hosted
     env:
       GOPRIVATE: ${{inputs.go_private}}
@@ -49,6 +50,13 @@ jobs:
           persist-credentials: true
           token: ${{ secrets.GITHUB_AUTH_TOKEN }}
           ref: ${{inputs.branch}}
+
+      - name: Setup Golang
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+          check-latest: true
+          cache: false
 
       - name: "Update everything"
         if: ${{ inputs.all }}
