@@ -122,12 +122,12 @@ jobs:
         id: bump_tag
         uses: anothrNick/github-tag-action@1.67.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
           DEFAULT_BUMP: minor
           DRY_RUN: ${{ !inputs.version }}
           VERBOSE: true
-          GIT_API_TAGGING: false
+          #GIT_API_TAGGING: false
 
       - name: Parse semver string
         id: semver_parser
