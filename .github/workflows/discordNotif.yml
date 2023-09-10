@@ -55,12 +55,7 @@ jobs:
         with:
           webhook: ${{ secrets.discord_webhook }}
           message: |
-            # Deployment Failure
-            Project [${{ inputs.github_repository }}](https://github.com/streemtech/${{ inputs.github_repository }}) has failed in deploying to `${{ inputs.env_variant }}`
-
-            ## Failure Reason
-            ${{ inputs.failure_reason }}
-
+            # ${{ inputs.github_repository }} Deployment Failure
+            [${{ inputs.github_repository }}](https://github.com/streemtech/${{ inputs.github_repository }}) has failed in deploying to `${{ inputs.env_variant }}`
             See [here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details
-
             ${{ inputs.ping_role_id }}
