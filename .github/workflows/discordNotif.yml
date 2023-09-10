@@ -34,7 +34,6 @@ on:
         required: true
         type: string
         description: "the run ID."
-#Reusable Workflow. Not a composite action unf.
 
 jobs:
   deployContainers:
@@ -43,25 +42,25 @@ jobs:
 
     steps:
       - name: Discord Success Notification
-        uses: rjstone/discord-webhook-notify@v1
+        uses: sebastianpopp/discord-action@releases/v2
         if: ${{ inputs.success }}
         with:
-          username: Actions Bot
-          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
-          webhookUrl: ${{ secrets.discord_webhook }}
-          severity: info
-          details: Project ${{ inputs.github_repository }} has succeeded in deploying to ${{ inputs.env_variant }}
-          text: ${{ inputs.github_server_url }}/${{ inputs.github_repository }}/actions
+          webhook: ${{ secrets.discord_webhook }}
+          message: |
+            [${{ inputs.github_repository }}](https://github.com/streemtech/${{ inputs.github_repository }}) deployed to `${{ inputs.env_variant }}`
 
       - name: Discord Fail Notification
-        uses: rjstone/discord-webhook-notify@v1
+        uses: sebastianpopp/discord-action@releases/v2
         if: ${{ !inputs.success }}
         with:
-          username: Actions Bot
-          avatarUrl: https://github.githubassets.com/images/modules/logos_page/Octocat.png
-          webhookUrl: ${{ secrets.discord_webhook }}
-          severity: error
-          details: Project ${{ inputs.github_repository }} has failed in deploying to ${{ inputs.env_variant }}
-          footer: ${{ inputs.failure_reason }}
-          text: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} ${{ inputs.ping_role_id }}
-          #TODO add role ping. <@&988658826599342120>
+          webhook: ${{ secrets.discord_webhook }}
+          message: |
+            # Deployment Failure
+            Project [${{ inputs.github_repository }}](https://github.com/streemtech/${{ inputs.github_repository }}) has failed in deploying to `${{ inputs.env_variant }}`
+
+            ## Failure Reason
+            ${{ inputs.failure_reason }}
+
+            See [here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details
+
+            ${{ inputs.ping_role_id }}
