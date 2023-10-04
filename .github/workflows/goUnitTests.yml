@@ -67,7 +67,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           persist-credentials: false
           token: ${{ secrets.GITHUB_AUTH_TOKEN }}
 
