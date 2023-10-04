@@ -46,7 +46,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           persist-credentials: true
           token: ${{ secrets.GITHUB_AUTH_TOKEN }}
           ref: ${{inputs.branch}}
