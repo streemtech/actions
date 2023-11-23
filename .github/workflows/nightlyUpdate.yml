@@ -5,6 +5,11 @@ on:
         required: true
         description: "the token used to pull data from github, and checkout as needed."
 
+      discord_webhook:
+        required: true
+        description: "value of the webhook to use for sending to discord"
+
+
     inputs:
       go_private:
         description: "the string sent to GOPRIVATE env var"
@@ -33,6 +38,10 @@ on:
         description: "if true, all deps will be updated, not just streemtech ones"
         type: boolean
         required: true
+      github_repository:
+        required: true
+        type: string
+        description: "the repository in question."
 
 #Reusable Workflow. Not a composite action unf.
 jobs:
@@ -65,7 +74,7 @@ jobs:
         if: ${{ inputs.all }}
         id: update_all
         run: |
-          UPDATES=$(go list -u -f '{{if and (and (not .Main) (not (eq .Update nil)) (not .Indirect)) }} upgrading {{.Version}} to {{.Update.Version}} for {{.Path}} {{end}}' -m all)
+          UPDATES=$(go list -u -f '{{if and (and (not .Main) (not (eq .Update nil)) (not .Indirect)) }}Upgrading {{.Version}} to {{.Update.Version}} for {{.Path}}{{end}}' -m all)
           go get -u ./...
           go mod tidy
           echo 'updates<<EOF' >> $GITHUB_OUTPUT
@@ -77,8 +86,8 @@ jobs:
         if: ${{ !inputs.all }}
         id: update
         run: |
-          UPDATES=$(go list -u -f '{{if and (and (not .Main) (not (eq .Update nil)) (not .Indirect)) }} upgrading {{.Version}} to {{.Update.Version}} for {{.Path}} {{end}}' -m all | grep streemtech)
-          go get -u $(go list -f '{{if not .Main}}{{.Path}}{{end}}' -m all | grep streemtech)
+          UPDATES=$(go list -u -f '{{if and (and (not .Main) (not (eq .Update nil)) (not .Indirect)) }}Upgrading {{.Version}} to {{.Update.Version}} for {{.Path}}{{end}}' -m all | grep streemtech)
+          go get -u $(go list -f '{{if and (and (not .Main) (not (eq .Update nil)) (not .Indirect)) }}{{.Path}}{{end}}' -m all | grep streemtech)
           go mod tidy
           echo 'updates<<EOF' >> $GITHUB_OUTPUT
           echo "Updating dependencies" >> $GITHUB_OUTPUT
@@ -137,3 +146,18 @@ jobs:
         with:
           commit_message: "Auto-Update #patch\n\n${{steps.update.outputs.updates}}"
           branch: ${{inputs.branch}}
+
+
+      - name: update success notification
+        uses: sebastianpopp/discord-action@releases/v2
+        if: success()
+        with:
+          webhook: ${{ secrets.discord_webhook }}
+          message: ${{ github.repository }} `${{inputs.branch}}` ${{ inputs.all && 'all-package' || 'streemtech-only' }} dependency updates succeeded
+
+      - name: update fail notification
+        if: failure()
+        uses: sebastianpopp/discord-action@releases/v2
+        with:
+          webhook: ${{ secrets.discord_webhook }}
+          message: ${{ github.repository }} `${{inputs.branch}}` ${{ inputs.all && 'all-package' || 'streemtech-only' }} dependency updates failed <@&988658826599342120>
