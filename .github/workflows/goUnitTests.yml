@@ -64,6 +64,10 @@ jobs:
       GOPRIVATE: ${{inputs.go_private}}
 
     steps:
+      - uses: autometrics-dev/instrument-pipeline@v0
+        name: instrument
+        with:
+          pushgateway: http://push-gateway-prometheus-pushgateway.op-metrics:9091/metrics
       - name: checkout
         uses: actions/checkout@v2
         with:

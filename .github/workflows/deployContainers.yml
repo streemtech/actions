@@ -55,6 +55,10 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - uses: autometrics-dev/instrument-pipeline@v0
+        name: instrument
+        with:
+          pushgateway: http://push-gateway-prometheus-pushgateway.op-metrics:9091/metrics
       - uses: azure/setup-kubectl@v3
         with:
           version: ${{inputs.kube_version}}
