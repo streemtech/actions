@@ -20,6 +20,11 @@ on:
         required: true
         type: string
         description: "a json array of service strings to call this workflow against."
+      context:
+        required: false
+        type: string
+        description: "a json array of kubernetes contexts to check out to deploy against. Defaults to k28."
+        default: '["k28", "k23"]'
       docker_registry_repo:
         required: true
         type: string
@@ -49,16 +54,17 @@ on:
 jobs:
   deployContainers:
     timeout-minutes: 2
-    # strategy:
-    #   matrix:
-    #     service: ${{fromJson(inputs.services)}}
+    strategy:
+      matrix:
+        # service: ${{fromJson(inputs.services)}}
+        context: ${{fromJson(inputs.contexts)}}
     runs-on: self-hosted
 
     steps:
       - uses: autometrics-dev/instrument-pipeline@v0
         name: instrument
         with:
-          pushgateway: http://push-gateway-prometheus-pushgateway.op-metrics:9091/metrics/job/github_action/instance/deply_containers
+          pushgateway: http://push-gateway-prometheus-pushgateway.op-metrics:9091/metrics/job/github_action/instance/compile_build/branch/${GITHUB_REF##*/}
       - uses: azure/setup-kubectl@v3
         with:
           version: ${{inputs.kube_version}}
@@ -86,8 +92,13 @@ jobs:
         env:
           KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
 
-    #   - name: Check Connect VPN
-    #     run: ping ${{inputs.check_ip}} -c 1
+      - run: |
+          echo setting context to ${{ matrix.context }}
+          kubectl config set-context ${{ matrix.context }}
+        name: set context
+        shell: bash
+        env:
+          KUBE_CONFIG: ${{secrets.KUBE_CONFIG}}
 
       - name: update and reset image
         run: |
