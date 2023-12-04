@@ -24,7 +24,7 @@ on:
         required: false
         type: string
         description: "a json array of kubernetes contexts to check out to deploy against. Defaults to k28."
-        default: '["k28", "k23"]'
+        default: '["k28"]'
       docker_registry_repo:
         required: true
         type: string
