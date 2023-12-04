@@ -20,7 +20,7 @@ on:
         required: true
         type: string
         description: "a json array of service strings to call this workflow against."
-      context:
+      contexts:
         required: false
         type: string
         description: "a json array of kubernetes contexts to check out to deploy against. Defaults to k28."
