@@ -55,7 +55,7 @@ jobs:
       - uses: autometrics-dev/instrument-pipeline@v0
         name: instrument
         with:
-          pushgateway: http://push-gateway-prometheus-pushgateway.op-metrics:9091/metrics
+          pushgateway: http://push-gateway-prometheus-pushgateway.op-metrics:9091/metrics/job/github_action/instance/nightly_update
       - name: checkout
         uses: actions/checkout@v2
         with:

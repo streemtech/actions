@@ -58,7 +58,7 @@ jobs:
       - uses: autometrics-dev/instrument-pipeline@v0
         name: instrument
         with:
-          pushgateway: http://push-gateway-prometheus-pushgateway.op-metrics:9091/metrics
+          pushgateway: http://push-gateway-prometheus-pushgateway.op-metrics:9091/metrics/job/github_action/instance/deply_containers
       - uses: azure/setup-kubectl@v3
         with:
           version: ${{inputs.kube_version}}
