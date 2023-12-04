@@ -94,7 +94,7 @@ jobs:
 
       - run: |
           echo setting context to ${{ matrix.context }}
-          kubectl config set-context ${{ matrix.context }}
+          kubectl config set-context ${{ matrix.context }} --kubeconfig ~/.kube.config
         name: set context
         shell: bash
         env:
