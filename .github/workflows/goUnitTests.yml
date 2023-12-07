@@ -67,7 +67,7 @@ jobs:
       - uses: autometrics-dev/instrument-pipeline@v0
         name: instrument
         with:
-          pushgateway: http://push-gateway-prometheus-pushgateway.op-metrics:9091/metrics/job/github_action/instance/compile_build/branch/${GITHUB_REF##*/}
+          pushgateway: http://prom-aggregation-gateway.op-metrics:8080/metrics/job/github_action/instance/compile_build/branch/${GITHUB_REF##*/}
       - name: checkout
         uses: actions/checkout@v2
         with:
