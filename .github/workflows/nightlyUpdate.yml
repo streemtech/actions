@@ -55,7 +55,7 @@ jobs:
       - uses: autometrics-dev/instrument-pipeline@v0
         name: instrument
         with:
-          pushgateway: http://prom-aggregation-gateway.op-metrics:8080/metrics/action/github_action/instance/nightly_update
+          pushgateway: http://prom-aggregation-gateway.op-metrics:8080/metrics/action/nightly_update/repo/${{ github.event.repository.name }}
       - name: checkout
         uses: actions/checkout@v2
         with:
