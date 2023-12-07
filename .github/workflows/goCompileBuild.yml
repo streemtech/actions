@@ -63,7 +63,7 @@ jobs:
       - uses: autometrics-dev/instrument-pipeline@v0
         name: instrument
         with:
-          pushgateway: http://prom-aggregation-gateway.op-metrics:8080/metrics/action/github_action/instance/compile_build/branch/${GITHUB_REF##*/}
+          pushgateway: http://prom-aggregation-gateway.op-metrics:8080/metrics/action/github_action/instance/compile_build/branch/${{GITHUB_REF##*/}}
       - name: checkout
         if: inputs.push_state == 'test'
         uses: actions/checkout@v2
