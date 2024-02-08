@@ -9,7 +9,6 @@ on:
         required: true
         description: "value of the webhook to use for sending to discord"
 
-
     inputs:
       go_private:
         description: "the string sent to GOPRIVATE env var"
@@ -67,7 +66,7 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21'
+          go-version: "1.21"
           check-latest: true
           cache: false
 
@@ -129,6 +128,7 @@ jobs:
           version: latest
           skip-pkg-cache: true
           skip-build-cache: true
+          args: "-v"
 
       - name: Archive Test Coverage
         uses: actions/upload-artifact@v2
@@ -150,7 +150,6 @@ jobs:
         with:
           commit_message: "Auto-Update #patch\n\n${{steps.update.outputs.updates}}"
           branch: ${{inputs.branch}}
-
 
       - name: update success notification
         uses: sebastianpopp/discord-action@releases/v2
