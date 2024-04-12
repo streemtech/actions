@@ -64,6 +64,10 @@ jobs:
         name: instrument
         with:
           pushgateway: http://prom-aggregation-gateway.op-metrics:8080/metrics/action/compile_build/repo/${{ github.event.repository.name }}
+
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action
+
       - name: checkout
         if: inputs.push_state == 'test'
         uses: actions/checkout@v2

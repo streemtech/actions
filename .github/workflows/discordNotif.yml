@@ -52,6 +52,13 @@ jobs:
           webhook: ${{ secrets.discord_webhook }}
           message: |
             [${{ inputs.github_repository }}](https://github.com/streemtech/${{ inputs.github_repository }}) deployed to `${{ inputs.env_variant }}`
+      - name: Discord Success Notification
+        uses: sebastianpopp/discord-action@releases/v2
+        if: "contains(github.event.head_commit.message, '#skipTest') && inputs.success"
+        with:
+          webhook: ${{ secrets.discord_webhook }}
+          message: |
+            ${{ inputs.ping_role_id }} [${{ inputs.github_repository }}](https://github.com/streemtech/${{ inputs.github_repository }}) deployed with tests skipped`
 
       - name: Discord Fail Notification
         uses: sebastianpopp/discord-action@releases/v2
