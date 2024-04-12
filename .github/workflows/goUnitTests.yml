@@ -69,8 +69,9 @@ jobs:
         with:
           pushgateway: http://prom-aggregation-gateway.op-metrics:8080/metrics/action/unit_tests/repo/${{ github.event.repository.name }}
 
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@v0.12.1
+      # Cant run without github token
+      # - name: Cancel Previous Runs
+      #   uses: styfle/cancel-workflow-action@v0.12.1
 
       - name: checkout
         uses: actions/checkout@v2
