@@ -44,7 +44,7 @@ on:
         description: "the string sent to GOPRIVATE env var"
         type: string
         required: true
-      cgo: 
+      cgo:
         description: "the status for cgo(compiling in bins etc). Defaults to '0' AKA off."
         type: string
         required: false
@@ -56,7 +56,7 @@ jobs:
     runs-on: self-hosted
     # strategy:
     #   matrix:
-        # service: ${{fromJson(inputs.services)}}
+    # service: ${{fromJson(inputs.services)}}
     env:
       GOPRIVATE: ${{inputs.go_private}}
     steps:
@@ -81,7 +81,7 @@ jobs:
         if: inputs.push_state == 'test'
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21'
+          go-version: "1.22"
           check-latest: true
           cache: false
 
@@ -156,6 +156,3 @@ jobs:
               --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:q${{ inputs.tagMajor }}.${{ inputs.tagMinor }} \
               --tag ${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:q${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}
           done
-
-
-
