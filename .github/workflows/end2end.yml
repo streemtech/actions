@@ -46,7 +46,7 @@ jobs:
         run: git config --global url."https://x-oauth-basic:${{ secrets.GITHUB_AUTH_TOKEN }}@github.com".insteadOf "https://github.com"
 
       - name: Login to Harbor
-        if: "!contains(github.event.head_commit.message, '[#skipTest]')"
+        if: "!contains(github.event.head_commit.message, '#skipTest')"
         uses: docker/login-action@v2
         with:
           registry: harbor.streem.tech
@@ -55,7 +55,7 @@ jobs:
 
       #Still setting up golang so the tests can be compiled and executed here.
       - name: Setup Golang
-        if: "!contains(github.event.head_commit.message, '[#skipTest]')"
+        if: "!contains(github.event.head_commit.message, '#skipTest')"
         uses: actions/setup-go@v4
         with:
           go-version: "1.22"
@@ -63,19 +63,19 @@ jobs:
           cache: false
 
       - name: Set Up Terraform
-        if: "!contains(github.event.head_commit.message, '[#skipTest]')"
+        if: "!contains(github.event.head_commit.message, '#skipTest')"
         uses: hashicorp/setup-terraform@v3
 
         # Checks if a full dockerfile exists to use.
       - name: Check dockerfile
-        if: "!contains(github.event.head_commit.message, '[#skipTest]')"
+        if: "!contains(github.event.head_commit.message, '#skipTest')"
         id: check_docker_files
         uses: andstor/file-existence-action@v1
         with:
           files: "./end-to-end/docker-compose.yml"
 
       - name: Check makefile
-        if: "!contains(github.event.head_commit.message, '[#skipTest]')"
+        if: "!contains(github.event.head_commit.message, '#skipTest')"
         id: check_makefile
         uses: andstor/file-existence-action@v1
         with:
@@ -83,21 +83,21 @@ jobs:
 
       - name: docker up
         run: docker compose -f ./end-to-end/docker-compose.yml up -d
-        if: steps.check_docker_files.outputs.files_exists == 'true' && !contains(github.event.head_commit.message, '[#skipTest]')
+        if: steps.check_docker_files.outputs.files_exists == 'true' && !contains(github.event.head_commit.message, '#skipTest')
 
       - name: list all containers
-        if: "!contains(github.event.head_commit.message, '[#skipTest]')"
+        if: "!contains(github.event.head_commit.message, '#skipTest')"
         run: docker ps -a
 
       - name: Wait for results to be up
         run: make wait
         working-directory: ./end-to-end
-        if: steps.check_makefile.outputs.files_exists == 'true' && !contains(github.event.head_commit.message, '[#skipTest]')
+        if: steps.check_makefile.outputs.files_exists == 'true' && !contains(github.event.head_commit.message, '#skipTest')
 
       - name: Run integration tests
         run: make integ
         working-directory: ./end-to-end
-        if: steps.check_makefile.outputs.files_exists == 'true' && !contains(github.event.head_commit.message, '[#skipTest]')
+        if: steps.check_makefile.outputs.files_exists == 'true' && !contains(github.event.head_commit.message, '#skipTest')
 
       - name: output logs
         if: ${{ failure() }}

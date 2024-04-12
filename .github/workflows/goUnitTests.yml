@@ -79,7 +79,7 @@ jobs:
         run: git config --global url."https://x-oauth-basic:${{ secrets.GITHUB_AUTH_TOKEN }}@github.com".insteadOf "https://github.com"
 
       - name: Setup Golang
-        if: "!contains(github.event.head_commit.message, '[#skipTest]')"
+        if: "!contains(github.event.head_commit.message, '#skipTest')"
         uses: actions/setup-go@v4
         with:
           go-version: "1.22"
@@ -87,31 +87,31 @@ jobs:
           cache: false
 
       - name: Generate
-        if: "!contains(github.event.head_commit.message, '[#skipTest]')"
+        if: "!contains(github.event.head_commit.message, '#skipTest')"
         run: make gen
 
       - name: Test
-        if: "!contains(github.event.head_commit.message, '[#skipTest]')"
+        if: "!contains(github.event.head_commit.message, '#skipTest')"
         run: go test -v -coverprofile=c.out ./...
 
       - name: Generate Coverage Report
-        if: "!contains(github.event.head_commit.message, '[#skipTest]')"
+        if: "!contains(github.event.head_commit.message, '#skipTest')"
         run: go tool cover -html=c.out -o coverage.html
 
       - name: Shadow Test
-        if: inputs.skip_shadow == false && !contains(github.event.head_commit.message, '[#skipTest]')
+        if: inputs.skip_shadow == false && !contains(github.event.head_commit.message, '#skipTest')
         run: |
           go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
           shadow -strict $(go list ./... | grep -v "api$")
 
       - name: Static Check
-        if: inputs.skip_static == false && !contains(github.event.head_commit.message, '[#skipTest]')
+        if: inputs.skip_static == false && !contains(github.event.head_commit.message, '#skipTest')
         run: |
           go install honnef.co/go/tools/cmd/staticcheck@latest
           staticcheck $(go list ./... | grep -v "api$")
 
       - name: golangci-lint
-        if: inputs.skip_lint == false && !contains(github.event.head_commit.message, '[#skipTest]')
+        if: inputs.skip_lint == false && !contains(github.event.head_commit.message, '#skipTest')
         uses: golangci/golangci-lint-action@v3
         with:
           # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
@@ -121,7 +121,7 @@ jobs:
           args: "-v"
 
       - name: Archive Test Coverage
-        if: "!contains(github.event.head_commit.message, '[#skipTest]')"
+        if: "!contains(github.event.head_commit.message, '#skipTest')"
         uses: actions/upload-artifact@v2
         with:
           path: coverage.html
