@@ -81,9 +81,16 @@ jobs:
         with:
           files: "./end-to-end/makefile"
 
+      - name: run startup command so all of the services are ready.
+        run: make startup
+        working-directory: ./end-to-end
+        if: steps.check_makefile.outputs.files_exists == 'true' && !contains(github.event.head_commit.message, '#skipTest')
+
       - name: docker up
-        run: docker compose -f ./end-to-end/docker-compose.yml up -d
         if: steps.check_docker_files.outputs.files_exists == 'true' && !contains(github.event.head_commit.message, '#skipTest')
+        run: docker compose -f ./end-to-end/docker-compose.yml up -d
+        env:
+          TAG: ${{ github.sha }}
 
       - name: list all containers
         if: "!contains(github.event.head_commit.message, '#skipTest')"
