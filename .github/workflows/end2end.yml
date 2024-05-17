@@ -37,22 +37,22 @@ jobs:
         name: instrument
         with:
           pushgateway: http://prom-aggregation-gateway.op-metrics:8080/metrics/action/end_to_end/repo/${{ github.event.repository.name }}
-      - name: Setup config
-        shell: bash
-        id: setup-config
-        run: |
-          sudo mkdir -p /etc/docker
-          cat <<EOF | sudo tee /etc/docker/daemon.json
-          {
-              "registry-mirrors": ["https://registry.streem.tech"]
-          }
-          EOF
-      - name: Reload Docker
-        shell: bash
-        id: reload-docker
-        run: |
-          sudo cat /etc/docker/daemon.json
-          sudo systemctl daemon-reload && sudo systemctl restart docker
+      # - name: Setup config
+      #   shell: bash
+      #   id: setup-config
+      #   run: |
+      #     sudo mkdir -p /etc/docker
+      #     cat <<EOF | sudo tee /etc/docker/daemon.json
+      #     {
+      #         "registry-mirrors": ["https://registry.streem.tech"]
+      #     }
+      #     EOF
+      # - name: Reload Docker
+      #   shell: bash
+      #   id: reload-docker
+      #   run: |
+      #     sudo cat /etc/docker/daemon.json
+      #     sudo systemctl daemon-reload && sudo systemctl restart docker
 
       - name: checkout
         uses: actions/checkout@v2
