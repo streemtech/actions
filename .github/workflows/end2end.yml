@@ -111,7 +111,7 @@ jobs:
 
       - name: docker up
         if: steps.check_docker_files.outputs.files_exists == 'true' && !contains(github.event.head_commit.message, '#skipTest')
-        run: docker compose -f ./end-to-end/docker-compose.yml up --wait -quiet-pull -d
+        run: docker compose -f ./end-to-end/docker-compose.yml up --wait --quiet-pull -d
         env:
           TAG: ${{ github.sha }}
 
