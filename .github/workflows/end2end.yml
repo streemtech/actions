@@ -55,7 +55,7 @@ jobs:
       #     sudo systemctl daemon-reload && sudo systemctl restart docker
 
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
@@ -73,7 +73,7 @@ jobs:
       #Still setting up golang so the tests can be compiled and executed here.
       - name: Setup Golang
         if: "!contains(github.event.head_commit.message, '#skipTest')"
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: "1.22"
           check-latest: true

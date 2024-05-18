@@ -56,7 +56,7 @@ jobs:
         with:
           pushgateway: http://prom-aggregation-gateway.op-metrics:8080/metrics/action/nightly_update/repo/${{ github.event.repository.name }}
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           persist-credentials: true
@@ -64,7 +64,7 @@ jobs:
           ref: ${{inputs.branch}}
 
       - name: Setup Golang
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: "1.22"
           check-latest: true
@@ -122,16 +122,14 @@ jobs:
 
       - name: golangci-lint
         if: inputs.skip_lint == false
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v6
         with:
           # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
           version: latest
-          skip-pkg-cache: true
-          skip-build-cache: true
           args: "-v"
 
       - name: Archive Test Coverage
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           path: coverage.html
           name: coverage.html
