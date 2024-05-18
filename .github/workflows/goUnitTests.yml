@@ -79,18 +79,6 @@ jobs:
           persist-credentials: true
           token: ${{ secrets.GITHUB_AUTH_TOKEN }}
 
-      - name: calculate test version number.
-        id: bump_tag
-        # Do not upgrade. This causes breaking as it is "unable to find username for https://github.com"
-        uses: anothrNick/github-tag-action@1.67.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_AUTH_TOKEN }}
-          WITH_V: true
-          DEFAULT_BUMP: minor
-          DRY_RUN: ${{ !inputs.version }}
-          VERBOSE: true
-          GIT_API_TAGGING: false
-
       - name: Setup git config
         run: git config --global url."https://x-oauth-basic:${{ secrets.GITHUB_AUTH_TOKEN }}@github.com".insteadOf "https://github.com"
 
@@ -147,6 +135,18 @@ jobs:
           path: coverage.html
           name: coverage.html
           retention-days: 7
+
+      - name: calculate test version number.
+        id: bump_tag
+        # Do not upgrade. This causes breaking as it is "unable to find username for https://github.com"
+        uses: anothrNick/github-tag-action@1.67.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_AUTH_TOKEN }}
+          WITH_V: true
+          DEFAULT_BUMP: minor
+          DRY_RUN: ${{ !inputs.version }}
+          VERBOSE: true
+          GIT_API_TAGGING: false
 
       - name: Parse semver string
         id: semver_parser
