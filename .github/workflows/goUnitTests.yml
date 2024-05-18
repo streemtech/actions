@@ -147,7 +147,7 @@ jobs:
           DEFAULT_BUMP: minor
           DRY_RUN: ${{ !inputs.version }}
           VERBOSE: true
-          #GIT_API_TAGGING: false
+          GIT_API_TAGGING: false
 
       - name: Parse semver string
         id: semver_parser
