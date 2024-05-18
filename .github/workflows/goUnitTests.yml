@@ -1,9 +1,6 @@
 on:
   workflow_call:
     secrets:
-      ALT_GITHUB_TOKEN:
-        required: true
-        description: "the token used to pull data from github, and checkout as needed."
       GITHUB_AUTH_TOKEN: #This can NOT be GITHUB_TOKEN as that is a pre-set secret.
         required: true
         description: "the token used to pull data from github, and checkout as needed."
@@ -79,7 +76,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false
+          persist-credentials: true
           token: ${{ secrets.GITHUB_AUTH_TOKEN }}
 
       - name: calculate test version number.
@@ -87,12 +84,12 @@ jobs:
         # Do not upgrade. This causes breaking as it is "unable to find username for https://github.com"
         uses: anothrNick/github-tag-action@1.67.0
         env:
-          GITHUB_TOKEN: ${{ secrets.ALT_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_AUTH_TOKEN }}
           WITH_V: true
           DEFAULT_BUMP: minor
           DRY_RUN: ${{ !inputs.version }}
           VERBOSE: true
-          GIT_API_TAGGING: true
+          GIT_API_TAGGING: false
 
       - name: Setup git config
         run: git config --global url."https://x-oauth-basic:${{ secrets.GITHUB_AUTH_TOKEN }}@github.com".insteadOf "https://github.com"
