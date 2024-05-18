@@ -142,7 +142,7 @@ jobs:
         # Do not upgrade. This causes breaking as it is "unable to find username for https://github.com"
         uses: anothrNick/github-tag-action@1.67.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
           DEFAULT_BUMP: minor
           DRY_RUN: ${{ !inputs.version }}
