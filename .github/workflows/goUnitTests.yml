@@ -55,6 +55,8 @@ jobs:
     #   matrix:
     #     name: ${{fromJson(inputs.names)}}
     runs-on: self-hosted
+    permissions:
+      contents: write
     outputs:
       newTag: ${{ steps.bump_tag.outputs.new_tag }}
       tagMajor: ${{ steps.semver_parser.outputs.major }}
