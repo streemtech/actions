@@ -127,6 +127,7 @@ jobs:
       - name: Run integration tests
         run: make integ
         working-directory: ./end-to-end
+
       - name: Test
         if: steps.check_makefile.outputs.files_exists == 'true' && !contains(github.event.head_commit.message, '#skipTest')
         uses: robherley/go-test-action@v0

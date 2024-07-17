@@ -115,12 +115,6 @@ jobs:
           go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
           shadow -strict $(go list ./... | grep -v "api$")
 
-      - name: Static Check
-        if: inputs.skip_static == false
-        run: |
-          go install honnef.co/go/tools/cmd/staticcheck@latest
-          staticcheck $(go list ./... | grep -v "api$")
-
       - name: golangci-lint
         if: inputs.skip_lint == false
         uses: golangci/golangci-lint-action@v6
@@ -128,6 +122,12 @@ jobs:
           # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
           version: latest
           args: "-v"
+
+      - name: Static Check
+        if: inputs.skip_static == false
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          staticcheck $(go list ./... | grep -v "api$")
 
       - name: Archive Test Coverage
         uses: actions/upload-artifact@v4
