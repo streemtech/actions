@@ -104,15 +104,15 @@ jobs:
           export GIT_COMMIT_DATE=$(git show -s --format=%ci HEAD)
           export COMPILE_DATE=$(date)
           export COMPILE_METHOD="Github Actions"
-          export DOCKER_TAG="${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}"
           echo $GIT_HASH_SHORT
           echo $GIT_HASH
           echo $GIT_TAG
           echo $GIT_COMMIT_DATE
           echo $COMPILE_DATE
           echo $COMPILE_METHOD
-          echo $DOCKER_TAG
           echo '${{inputs.services}}' | jq -r -c '.[]' | while read i; do
+            export DOCKER_TAG="${{ inputs.docker_registry }}/${{ inputs.docker_registry_repo }}/$i:${{ inputs.tagMajor }}.${{ inputs.tagMinor }}.${{ inputs.tagPatch }}"
+            echo $DOCKER_TAG
             cd cmd/$i
             echo building $i
             CGO_ENABLED=${{inputs.cgo}} GOOS=linux go build -a -ldflags "-X 'github.com/streemtech/libraries.GitHashShort=$GIT_HASH_SHORT' -X 'github.com/streemtech/libraries.GitHash=$GIT_HASH' -X 'github.com/streemtech/libraries.GitTag=$GIT_TAG' -X 'github.com/streemtech/libraries.GitCommitDate=$GIT_COMMIT_DATE' -X 'github.com/streemtech/libraries.CompileDate=$COMPILE_DATE' -X 'github.com/streemtech/libraries.CompileMethod=$COMPILE_METHOD' -X 'github.com/streemtech/libraries.DockerTag=$DOCKER_TAG'" -o main .
