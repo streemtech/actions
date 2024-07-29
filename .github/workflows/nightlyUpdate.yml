@@ -45,7 +45,7 @@ on:
 #Reusable Workflow. Not a composite action unf.
 jobs:
   nightlyUpdate:
-    timeout-minutes: 15
+    timeout-minutes: 30
     runs-on: self-hosted
     env:
       GOPRIVATE: ${{inputs.go_private}}

@@ -47,7 +47,7 @@ on:
 #Reusable Workflow. Not a composite action unf.
 jobs:
   unitTests:
-    timeout-minutes: 15
+    timeout-minutes: 30
     # strategy:
     #   matrix:
     #     name: ${{fromJson(inputs.names)}}

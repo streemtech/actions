@@ -52,7 +52,7 @@ on:
 #Reusable Workflow. Not a composite action unf.
 jobs:
   compileBuildPush:
-    timeout-minutes: 15
+    timeout-minutes: 30
     runs-on: self-hosted
     # strategy:
     #   matrix:
