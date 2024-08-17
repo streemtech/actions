@@ -93,6 +93,9 @@ jobs:
       - name: Generate
         if: inputs.push_state == 'test'
         run: make gen
+        env:
+          # TODO remove after fixing circuitgen to not have type alises
+          GODEBUG: "gotypesalias=0"
 
         #Only do this step for the initial container creation as it is not needed after.
       - name: Compile executable
