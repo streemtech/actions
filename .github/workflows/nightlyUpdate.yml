@@ -107,10 +107,7 @@ jobs:
       - name: Test
         uses: robherley/go-test-action@v0
         with:
-          testArguments: " -v -coverprofile=c.out ./..."
-
-      - name: Generate Coverage Report
-        run: go tool cover -html=c.out -o coverage.html
+          testArguments: " -v ./..."
 
       - name: Shadow Test
         if: inputs.skip_shadow == false
@@ -131,13 +128,6 @@ jobs:
         run: |
           go install honnef.co/go/tools/cmd/staticcheck@latest
           staticcheck $(go list ./... | grep -v "api$")
-
-      - name: Archive Test Coverage
-        uses: actions/upload-artifact@v4
-        with:
-          path: coverage.html
-          name: coverage.html
-          retention-days: 7
 
       - name: Commit & Push changes
         if: ${{ inputs.all }}

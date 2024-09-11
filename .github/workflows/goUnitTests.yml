@@ -105,11 +105,8 @@ jobs:
         with:
           # Arguments to pass to go test, -json will be prepended automatically.
           # Optional. Default is './...'
-          testArguments: " -v -coverprofile=c.out ./..."
+          testArguments: " -v ./..."
 
-      - name: Generate Coverage Report
-        if: "!contains(github.event.head_commit.message, '#skipTest')"
-        run: go tool cover -html=c.out -o coverage.html
 
       - name: Shadow Test
         if: inputs.skip_shadow == false && !contains(github.event.head_commit.message, '#skipTest')
@@ -131,13 +128,7 @@ jobs:
           go install honnef.co/go/tools/cmd/staticcheck@latest
           staticcheck $(go list ./... | grep -v "api$")
 
-      - name: Archive Test Coverage
-        if: "!contains(github.event.head_commit.message, '#skipTest')"
-        uses: actions/upload-artifact@v4
-        with:
-          path: coverage.html
-          name: coverage.html
-          retention-days: 7
+
 
       - name: calculate test version number.
         id: bump_tag
