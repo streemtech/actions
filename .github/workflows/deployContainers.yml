@@ -65,26 +65,26 @@ jobs:
         name: instrument
         with:
           pushgateway: http://prom-aggregation-gateway.op-metrics:8080/metrics/action/deploy_container/context/${{ matrix.context }}/repo/${{ github.event.repository.name }}
-      - uses: azure/setup-kubectl@v3
+      - uses: azure/setup-kubectl@v4
         with:
           version: ${{inputs.kube_version}}
 
-    #   - name: Install OpenVPN
-    #     run: |
-    #       sudo apt update
-    #       sudo apt install -y openvpn openvpn-systemd-resolved
+      #   - name: Install OpenVPN
+      #     run: |
+      #       sudo apt update
+      #       sudo apt install -y openvpn openvpn-systemd-resolved
 
-    #   - run: 'echo "$VPN_CONFIG" > ./config.ovpn'
-    #     name: create ovpn file
-    #     shell: bash
-    #     env:
-    #       VPN_CONFIG: ${{secrets.VPN_CONFIG}}
+      #   - run: 'echo "$VPN_CONFIG" > ./config.ovpn'
+      #     name: create ovpn file
+      #     shell: bash
+      #     env:
+      #       VPN_CONFIG: ${{secrets.VPN_CONFIG}}
 
-    #   - name: Connect to VPN
-    #     uses: "kota65535/github-openvpn-connect-action@v1"
-    #     with:
-    #       config_file: ./config.ovpn
-    #       # client_key: ${{ secrets.OVPN_CLIENT_KEY }}
+      #   - name: Connect to VPN
+      #     uses: "kota65535/github-openvpn-connect-action@v1"
+      #     with:
+      #       config_file: ./config.ovpn
+      #       # client_key: ${{ secrets.OVPN_CLIENT_KEY }}
 
       - run: 'echo "$KUBE_CONFIG" > ~/.kube.config'
         name: create kube config file
@@ -102,7 +102,7 @@ jobs:
 
       - name: update and reset image
         run: |
-          
+
           echo '${{inputs.services}}' | jq -r -c '.[]' | while read i; do
             kubectl --namespace=${{ inputs.kube_namespace }} --kubeconfig ~/.kube.config \
             set image deployment/${{inputs.deployment_prefix}}$i-deployment \
