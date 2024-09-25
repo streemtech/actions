@@ -79,9 +79,9 @@ jobs:
           check-latest: true
           cache: false
 
-      #Start setup for NODE
+      #Start setup for NODE (Unsure where this is used. Potentially terraform, but taht doesent feel right.)
       - name: Node Setup (needed for terraform?)
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
