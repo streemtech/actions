@@ -67,7 +67,7 @@ jobs:
           pushgateway: http://prom-aggregation-gateway.op-metrics:8080/metrics/action/deploy_container/context/${{ matrix.context }}/repo/${{ github.event.repository.name }}
       - uses: azure/setup-kubectl@v4
         with:
-          version: ${{inputs.kube_version}}
+          version: "v1.31.1"
 
       #   - name: Install OpenVPN
       #     run: |
