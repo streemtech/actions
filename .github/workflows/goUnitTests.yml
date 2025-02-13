@@ -86,7 +86,7 @@ jobs:
         if: "!contains(github.event.head_commit.message, '#skipTest')"
         uses: actions/setup-go@v5
         with:
-          go-version: "1.23"
+          go-version: "1.24"
           check-latest: true
           cache: false
 
@@ -107,7 +107,6 @@ jobs:
           # Optional. Default is './...'
           testArguments: " -v ./..."
 
-
       - name: Shadow Test
         if: inputs.skip_shadow == false && !contains(github.event.head_commit.message, '#skipTest')
         run: |
@@ -127,8 +126,6 @@ jobs:
         run: |
           go install honnef.co/go/tools/cmd/staticcheck@latest
           staticcheck $(go list ./... | grep -v "api$")
-
-
 
       - name: calculate test version number.
         id: bump_tag
