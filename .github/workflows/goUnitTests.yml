@@ -100,7 +100,6 @@ jobs:
           path: |
             ~/.cache/go-build
             ~/go/pkg/mod
-
           key: go-streemtech-service-${{ github.event.repository.name }}-${{ hashFiles('go.sum') }}
           restore-keys: |
             go-streemtech-service-${{ github.event.repository.name }}

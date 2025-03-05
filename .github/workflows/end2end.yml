@@ -68,6 +68,23 @@ jobs:
         with:
           persist-credentials: false
 
+      - uses: runs-on/cache@v4
+        env:
+          RUNS_ON_S3_BUCKET_CACHE: "github-actions-cache-bucket"
+          AWS_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+          AWS_ENDPOINT_URL: ${{ secrets.MINIO_ENDPOINT }}
+          AWS_REGION: "us-east-1"
+          AWS_S3_FORCE_PATH_STYLE: "true"
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: go-streemtech-service-${{ github.event.repository.name }}-${{ hashFiles('go.sum') }}
+          restore-keys: |
+            go-streemtech-service-${{ github.event.repository.name }}
+            go-streemtech-service-
+
       - name: Setup git config
         run: git config --global url."https://x-oauth-basic:${{ secrets.GITHUB_AUTH_TOKEN }}@github.com".insteadOf "https://github.com"
 
