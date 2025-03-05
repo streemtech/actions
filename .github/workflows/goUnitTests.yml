@@ -4,6 +4,15 @@ on:
       GITHUB_AUTH_TOKEN: #This can NOT be GITHUB_TOKEN as that is a pre-set secret.
         required: true
         description: "the token used to pull data from github, and checkout as needed."
+      MINIO_ACCESS_KEY:
+        required: true
+        description: "variable for accessing minio for cache and build artifacts"
+      MINIO_SECRET_KEY:
+        required: true
+        description: "variable for accessing minio for cache and build artifacts"
+      MINIO_ENDPOINT:
+        required: true
+        description: "variable for accessing minio for cache and build artifacts"
 
     inputs:
       version:

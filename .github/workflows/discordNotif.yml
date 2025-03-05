@@ -4,6 +4,15 @@ on:
       discord_webhook:
         required: true
         description: "value of the webhook to use for sending to discord"
+      MINIO_ACCESS_KEY:
+        required: true
+        description: "variable for accessing minio for cache and build artifacts"
+      MINIO_SECRET_KEY:
+        required: true
+        description: "variable for accessing minio for cache and build artifacts"
+      MINIO_ENDPOINT:
+        required: true
+        description: "variable for accessing minio for cache and build artifacts"
 
     inputs:
       success:

@@ -9,7 +9,16 @@ on:
         description: "Kubernetes configuration file text"
       # OVPN_CLIENT_KEY:
       #   required: true
-      #   description: "the certificate key"
+      #   description: "the certificate key".
+      MINIO_ACCESS_KEY:
+        required: true
+        description: "variable for accessing minio for cache and build artifacts"
+      MINIO_SECRET_KEY:
+        required: true
+        description: "variable for accessing minio for cache and build artifacts"
+      MINIO_ENDPOINT:
+        required: true
+        description: "variable for accessing minio for cache and build artifacts"
 
     inputs:
       check_ip:
